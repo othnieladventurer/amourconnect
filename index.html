@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AmourConnect – Connexions humaines réelles</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#8e24aa",
+            secondary: "#e91e63",
+            dark: "#2d0a3d",
+            accentPink: "#e91e63",
+            secondaryLight: "#f48fb1", 
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+
+<style>
+    *{
+        scroll-behavior: smooth;
+    }
+</style>
+
+<body class="text-gray-800">
+
+<!-- NAVBAR -->
+<header class="fixed w-full bg-white/90 backdrop-blur shadow z-50">
+  <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+    <h1 class="text-2xl font-bold text-primary flex items-center gap-2">
+      <i class="fa-solid fa-heart text-secondary"></i> AmourConnect
+    </h1>
+
+    <!-- Desktop Menu -->
+    <nav class="hidden md:flex gap-6 items-center">
+      <a href="#who" class="hover:text-secondary transition">Qui sommes-nous</a>
+      <a href="#what" class="hover:text-secondary transition">Ce que nous faisons</a>
+      <a href="#features" class="hover:text-secondary transition">Fonctionnalités</a>
+      <a href="#login-cta" class="bg-secondary text-white px-5 py-2 rounded-full hover:opacity-90 transition">
+        Se connecter
+      </a>
+    </nav>
+
+    <!-- Mobile Hamburger -->
+    <div class="md:hidden flex items-center">
+      <button id="mobile-menu-button" class="text-gray-800 focus:outline-none">
+        <i class="fa-solid fa-bars text-2xl"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur shadow-lg">
+    <div class="flex flex-col px-6 py-4 gap-4">
+      <a href="#who" class="hover:text-secondary transition">Qui sommes-nous</a>
+      <a href="#what" class="hover:text-secondary transition">Ce que nous faisons</a>
+      <a href="#features" class="hover:text-secondary transition">Fonctionnalités</a>
+      <a href="#login-cta" class="bg-secondary text-white px-5 py-2 rounded-full hover:opacity-90 transition text-center">
+        Se connecter
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO (FULL BACKGROUND) -->
+<section class="min-h-screen flex items-center bg-cover bg-center relative"
+style="background-image:url('https://images.pexels.com/photos/1415131/pexels-photo-1415131.jpeg')">
+
+  <div class="absolute inset-0 bg-black/60"></div>
+
+  <div class="relative max-w-4xl mx-auto px-6 text-center text-white">
+    <h2 class="text-4xl md:text-6xl font-bold mb-6">
+      Des rencontres sincères.<br>
+     <span class="text-secondaryLight">Des connexions qui durent.</span>
+
+    </h2>
+
+    <p class="text-lg md:text-xl mb-8 opacity-90">
+      AmourConnect est une plateforme de rencontres pensée pour les personnes
+      qui recherchent plus qu’un simple swipe.  
+      Ici, les relations commencent par le respect, la compatibilité et l’authenticité.
+    </p>
+
+    <a href="#join"
+       class="inline-block bg-secondary px-10 py-4 rounded-full text-lg font-semibold hover:opacity-90 transition">
+      Créer mon profil
+    </a>
+  </div>
+</section>
+
+<!-- WHO WE ARE -->
+<section id="who" class="py-24 bg-white">
+  <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+    <div>
+      <h3 class="text-3xl font-bold mb-6">Qui sommes-nous</h3>
+      <p class="mb-4 text-gray-600">
+        AmourConnect est né d’un constat simple : les plateformes de rencontres
+        modernes favorisent souvent la quantité plutôt que la qualité.
+      </p>
+      <p class="mb-4 text-gray-600">
+        Notre équipe est composée de designers, développeurs et psychologues
+        sociaux qui partagent une vision commune :
+        remettre l’humain au cœur des rencontres en ligne.
+      </p>
+      <p class="text-gray-600">
+        Nous croyons que chaque personne mérite une expérience respectueuse,
+        sécurisée et orientée vers des relations sincères.
+      </p>
+    </div>
+
+    <img src="https://images.pexels.com/photos/984941/pexels-photo-984941.jpeg"
+         class="rounded-2xl shadow-xl"
+         alt="Notre équipe">
+  </div>
+</section>
+
+<!-- WHAT WE DO -->
+<section id="what" class="py-24 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-6 text-center">
+    <h3 class="text-3xl font-bold mb-12">Ce que nous faisons</h3>
+    <div class="grid md:grid-cols-3 gap-10">
+      <div class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition">
+        <i class="fa-solid fa-user-check text-4xl text-primary mb-4"></i>
+        <h4 class="font-bold text-xl mb-3">Profils authentiques</h4>
+        <p class="text-gray-600">
+          Chaque utilisateur crée un profil détaillé mettant en avant
+          sa personnalité, ses valeurs et ses intentions.
+        </p>
+      </div>
+      <div class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition">
+        <i class="fa-solid fa-brain text-4xl text-secondary mb-4"></i>
+        <h4 class="font-bold text-xl mb-3">Matching intelligent</h4>
+        <p class="text-gray-600">
+          Nos algorithmes analysent les centres d’intérêt, les objectifs de vie
+          et les compatibilités pour proposer des connexions pertinentes.
+        </p>
+      </div>
+      <div class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition">
+        <i class="fa-solid fa-shield-heart text-4xl text-primary mb-4"></i>
+        <h4 class="font-bold text-xl mb-3">Sécurité & respect</h4>
+        <p class="text-gray-600">
+          Modération active, outils de signalement et protection des données
+          pour garantir un environnement sain.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="py-24 bg-white">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <h3 class="text-3xl font-bold mb-4">Fonctionnalités principales</h3>
+      <p class="text-gray-600 max-w-2xl mx-auto">
+        Tout ce dont vous avez besoin pour créer des connexions sincères,
+        dans un environnement moderne et sécurisé.
+      </p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Messagerie privée -->
+      <div class="group rounded-2xl overflow-hidden shadow hover:shadow-xl transition">
+        <div class="relative h-48">
+          <img src="static/img/ChatGPT Image Feb 6, 2026, 03_37_03 PM.png"
+               alt="Messagerie privée"
+               class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+          <div class="absolute inset-0 bg-black/30"></div>
+          <div class="absolute bottom-4 left-4 text-white">
+            <i class="fa-solid fa-comments text-2xl mb-2"></i>
+            <h4 class="font-bold text-lg">Messagerie privée</h4>
+          </div>
+        </div>
+        <div class="p-6 bg-white">
+          <p class="text-gray-600">
+            Échangez des messages en toute confidentialité grâce à une messagerie
+            sécurisée pensée pour favoriser des conversations naturelles.
+          </p>
+        </div>
+      </div>
+
+      <!-- Filtres avancés -->
+      <div class="group rounded-2xl overflow-hidden shadow hover:shadow-xl transition">
+        <div class="relative h-48">
+          <img src="https://images.pexels.com/photos/35044623/pexels-photo-35044623.jpeg"
+               alt="Filtres avancés"
+               class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+          <div class="absolute inset-0 bg-black/30"></div>
+          <div class="absolute bottom-4 left-4 text-white">
+            <i class="fa-solid fa-sliders text-2xl mb-2"></i>
+            <h4 class="font-bold text-lg">Filtres avancés</h4>
+          </div>
+        </div>
+        <div class="p-6 bg-white">
+          <p class="text-gray-600">
+            Trouvez plus facilement des profils compatibles en filtrant
+            selon vos centres d’intérêt, vos valeurs et vos objectifs.
+          </p>
+        </div>
+      </div>
+
+      <!-- Profils détaillés -->
+      <div class="group rounded-2xl overflow-hidden shadow hover:shadow-xl transition">
+        <div class="relative h-48">
+          <img src="static/img/ChatGPT Image Feb 6, 2026, 03_43_18 PM.png"
+               alt="Profils détaillés"
+               class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+          <div class="absolute inset-0 bg-black/30"></div>
+          <div class="absolute bottom-4 left-4 text-white">
+            <i class="fa-solid fa-user text-2xl mb-2"></i>
+            <h4 class="font-bold text-lg">Profils détaillés</h4>
+          </div>
+        </div>
+        <div class="p-6 bg-white">
+          <p class="text-gray-600">
+            Découvrez la personnalité derrière chaque photo grâce à des profils
+            complets mettant en avant passions, intentions et style de vie.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOGIN CTA -->
+<section id="login-cta" class="py-24 bg-dark text-white">
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <h3 class="text-4xl font-bold mb-6">Bienvenue sur AmourConnect</h3>
+    <p class="mb-10 text-gray-300 text-lg">
+      Connectez-vous pour continuer votre parcours vers des connexions authentiques et significatives.
+      Accédez à votre profil, découvrez vos matchs et commencez à échanger dès maintenant.
+    </p>
+    <div class="flex justify-center">
+        <a href="/login.html" 
+            class="bg-white text-accentPink px-10 py-4 rounded-full font-semibold text-lg hover:opacity-90 transition duration-300">
+            Se connecter
+        </a>
+    </div>
+  </div>
+</section>
+
+
+
+
+<!-- TESTIMONIALS -->
+<section id="testimonials" class="py-24 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-6 text-center">
+    <h3 class="text-3xl font-bold mb-12">Ce que disent nos membres</h3>
+
+    <div class="grid md:grid-cols-3 gap-8">
+
+      <!-- Testimonial 1 -->
+      <div class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition">
+        <p class="text-gray-600 mb-4">
+          "Grâce à AmourConnect, j’ai rencontré quelqu’un qui partage vraiment mes valeurs. La messagerie privée rend tout simple et sûr."
+        </p>
+        <div class="flex items-center justify-center gap-4 mt-4">
+          <img src="https://randomuser.me/api/portraits/women/44.jpg" 
+               class="w-12 h-12 rounded-full" alt="Membre">
+          <div class="text-left">
+            <h5 class="font-bold text-gray-800">Clara, 27 ans</h5>
+            <p class="text-gray-500 text-sm">Paris, France</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial 2 -->
+      <div class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition">
+        <p class="text-gray-600 mb-4">
+          "J’ai essayé plusieurs applications avant, mais ici, les profils sont détaillés et authentiques. J’ai trouvé une vraie connexion."
+        </p>
+        <div class="flex items-center justify-center gap-4 mt-4">
+          <img src="https://randomuser.me/api/portraits/men/32.jpg" 
+               class="w-12 h-12 rounded-full" alt="Membre">
+          <div class="text-left">
+            <h5 class="font-bold text-gray-800">Lucas, 31 ans</h5>
+            <p class="text-gray-500 text-sm">Lyon, France</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial 3 -->
+      <div class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition">
+        <p class="text-gray-600 mb-4">
+          "Les filtres avancés et le matching intelligent m’ont permis de rencontrer des personnes vraiment compatibles. Je recommande fortement!"
+        </p>
+        <div class="flex items-center justify-center gap-4 mt-4">
+          <img src="https://randomuser.me/api/portraits/women/68.jpg" 
+               class="w-12 h-12 rounded-full" alt="Membre">
+          <div class="text-left">
+            <h5 class="font-bold text-gray-800">Sophie, 29 ans</h5>
+            <p class="text-gray-500 text-sm">Marseille, France</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer class="bg-black text-gray-400 py-8 text-center text-sm">
+  © 2024 AmourConnect — Des connexions sincères et respectueuses
+</footer>
+
+<!-- Mobile menu toggle script -->
+<script>
+  const menuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  menuButton.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+  });
+</script>
+
+</body>
+</html>
