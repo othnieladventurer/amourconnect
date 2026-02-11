@@ -10,7 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+
+import os
 from pathlib import Path
+os.environ['TZ'] = 'America/New_York'
+import environ
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,6 +31,15 @@ SECRET_KEY = 'django-insecure-p6%y6_zpiu13eoy^o#xq0s1y4+tzg-%4y6%k=3o*&80lzlm4pl
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+
+
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+ENVIRONMENT = config("ENVIRONMENT", default="production").lower()
+DEBUG = True if ENVIRONMENT == "development" else False
+
 
 
 # Application definition
