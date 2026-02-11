@@ -29,7 +29,9 @@
       <div id="matches-list" class="space-y-3">
         {% if matches %}
           {% for match in matches %}
-            <div class="flex items-center gap-3 cursor-pointer {% if not is_paid and forloop.counter > 2 %}blur-sm{% endif %}" onclick="openMatchModal({{ forloop.counter0 }})">
+            <div class="flex items-center gap-3 cursor-pointer {% if not is_paid and forloop.counter > 2 %}blur-sm{% endif %}" 
+                 data-user-id="{{ match.other_user.id }}" 
+                 onclick="openMatchModal({{ forloop.counter0 }})">
               <img src="{{ match.other_user.profile_photo }}" class="w-12 h-12 rounded-full">
               <span>{{ match.other_user.username }}</span>
             </div>
@@ -94,7 +96,8 @@
     <img id="match-img" class="w-28 h-28 mx-auto rounded-full mb-4">
     <p id="match-name" class="font-bold text-lg mb-6"></p>
     <div class="flex flex-col gap-3">
-      <button onclick="viewMatchProfile()" class="bg-primary text-white py-3 rounded-full transition-colors duration-200 hover:bg-purple-700">👤 Voir le profil</button>
+      <!-- Voir Profil button redirects to profile page -->
+      <a id="match-view-link" class="bg-primary text-white py-3 rounded-full transition-colors duration-200 hover:bg-purple-700" href="#">👤 Voir le profil</a>
       <button class="bg-secondary text-white py-3 rounded-full transition-colors duration-200 hover:bg-pink-700">💬 Envoyer un message</button>
       <button class="bg-gray-200 py-3 rounded-full transition-colors duration-200 hover:bg-gray-400">❌ Se désapparier</button>
       <button class="bg-red-500 text-white py-3 rounded-full transition-colors duration-200 hover:bg-red-700">🚫 Bloquer</button>
@@ -183,7 +186,6 @@ function showProfile(index) {
   `;
 }
 
-
 /* ===============================
    SEND LIKE OR PASS (with Match popup)
 ================================ */
@@ -198,13 +200,10 @@ function sendAction(action, userId) {
   })
   .then(res => res.json())
   .then(data => {
-    // ✅ Show match modal instantly if it's a mutual like
     if (data.is_match && data.matched_user) {
       showMatchModal(data.matched_user);
-      addToMatchesList(data.matched_user); // optional: add to matches sidebar
+      addToMatchesList(data.matched_user);
     }
-
-    // Proceed to next profile and refresh likes
     nextProfile();
     populateLikes();
   })
@@ -242,15 +241,14 @@ function openLikeModal(index) {
   const likeButtonsContainer = document.getElementById("like-buttons");
   likeButtonsContainer.innerHTML = "";
 
-  // Check if current user has already liked this user
   const likedUserIds = profiles.map(p => p.id);
   const alreadyLikedEachOther = likedUserIds.includes(like.from_user.id);
 
   if (alreadyLikedEachOther) {
-    const viewBtn = document.createElement("button");
+    const viewBtn = document.createElement("a");
     viewBtn.className = "bg-blue-500 text-white px-6 py-3 rounded-full";
     viewBtn.innerText = "Voir Profil";
-    viewBtn.onclick = () => viewLikeProfile(index);
+    viewBtn.href = "{% url 'nmdashboard:voir_profil' 0 %}".replace("/0/", `/${like.from_user.id}/`);
     likeButtonsContainer.appendChild(viewBtn);
   } else {
     const passBtn = document.createElement("button");
@@ -263,10 +261,10 @@ function openLikeModal(index) {
     heartBtn.innerHTML = '<i class="fa-solid fa-heart"></i>';
     heartBtn.onclick = () => sendAction('like', currentLikeId);
 
-    const viewBtn = document.createElement("button");
+    const viewBtn = document.createElement("a");
     viewBtn.className = "bg-blue-500 text-white px-6 py-3 rounded-full";
     viewBtn.innerText = "Voir Profil";
-    viewBtn.onclick = () => viewLikeProfile(index);
+    viewBtn.href = "{% url 'nmdashboard:voir_profil' 0 %}".replace("/0/", `/${like.from_user.id}/`);
 
     likeButtonsContainer.appendChild(passBtn);
     likeButtonsContainer.appendChild(heartBtn);
@@ -298,8 +296,14 @@ function showProfileById(userId) {
 function showMatchModal(user) {
   document.getElementById("match-name").innerText = user.username;
   document.getElementById("match-img").src = user.profile_photo || "/static/images/default-profile.png";
+
+  // Update link to actual user id
+  const link = document.getElementById("match-view-link");
+  link.href = "{% url 'nmdashboard:voir_profil' 0 %}".replace("/0/", `/${user.id}/`);
+
   document.getElementById("match-modal").classList.remove("hidden");
 }
+
 function closeMatchModal() { document.getElementById("match-modal").classList.add("hidden"); }
 
 /* ===============================
@@ -310,22 +314,17 @@ document.addEventListener("DOMContentLoaded", () => {
   populateLikes();
 });
 
-
-
-
-
-//Add match List
+// Add match list items dynamically
 function addToMatchesList(user) {
   const matchesList = document.getElementById("matches-list");
   if (!matchesList) return;
 
-  // Remove "Pas encore de matchs" message if it exists
   const noMatchMsg = document.getElementById("no-matches-msg");
   if (noMatchMsg) noMatchMsg.remove();
 
-  // Create match container
   const div = document.createElement("div");
   div.className = "flex items-center gap-3 cursor-pointer";
+  div.dataset.userId = user.id;
   div.onclick = () => showMatchModal(user);
 
   const img = document.createElement("img");
@@ -338,8 +337,21 @@ function addToMatchesList(user) {
   div.appendChild(img);
   div.appendChild(span);
 
-  // Append the new match at the end
   matchesList.appendChild(div);
+}
+
+// Prepare matches data from DOM including user id
+const matchesData = Array.from(document.querySelectorAll('#matches-list > div')).map(div => {
+  return {
+    username: div.querySelector('span').innerText,
+    profile_photo: div.querySelector('img').src,
+    id: div.dataset.userId
+  };
+});
+
+function openMatchModal(index) {
+  if (!matchesData || !matchesData[index]) return;
+  showMatchModal(matchesData[index]);
 }
 
 </script>

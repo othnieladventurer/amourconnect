@@ -10,6 +10,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('my_profiel/', views.my_profile, name='my_profile'),
     path("like/", views.like_or_pass, name="like_or_pass"),
+    path("profil/<int:user_id>/", views.voir_profil, name="voir_profil"),
 
 
 ]

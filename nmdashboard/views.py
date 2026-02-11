@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from users.models import User, UserProfilePicture
 from .forms import UserProfileForm, UserProfilePictureForm
@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 import json
+from datetime import date
 
 
 
@@ -168,6 +169,30 @@ def like_or_pass(request):
 
     return JsonResponse({"status": "liked", "is_match": False})
 
+
+
+
+@login_required
+def voir_profil(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    # Compute age
+    age = None
+    if user.birth_date:
+        today = date.today()
+        age = today.year - user.birth_date.year
+        if (today.month, today.day) < (user.birth_date.month, user.birth_date.day):
+            age -= 1
+
+    hobbies_list = [h.strip() for h in user.hobbies.split(",") if h.strip()]
+    passions_list = [p.strip() for p in user.passions.split(",") if p.strip()]
+
+    return render(request, "nmdashboard/voir_profil.html", {
+        "profile_suser": user,
+        "age": age,
+        "hobbies_list": hobbies_list,
+        "passions_list": passions_list,
+    })
 
 
 
