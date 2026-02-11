@@ -1,0 +1,116 @@
+{% extends 'nmdashboard/base.html' %}
+
+
+
+{% block content %}
+<!-- DASHBOARD -->
+<main class="flex-1 pt-28 px-4">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- LEFT -->
+    <div class="hidden lg:flex flex-col gap-6">
+      <!-- LIKES -->
+      <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-bold text-center mb-4">Ils vous aiment</h3>
+        <div class="flex justify-center gap-3">
+          <img src="https://randomuser.me/api/portraits/women/30.jpg" class="w-14 h-14 rounded-full cursor-pointer" onclick="openLikeModal(0)">
+          <img src="https://randomuser.me/api/portraits/women/31.jpg" class="w-14 h-14 rounded-full cursor-pointer" onclick="openLikeModal(1)">
+          <img src="https://randomuser.me/api/portraits/women/32.jpg" class="w-14 h-14 rounded-full cursor-pointer" onclick="openLikeModal(2)">
+        </div>
+      </div>
+
+      <!-- MATCHES -->
+      <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-bold text-center mb-4">Matchs</h3>
+        <div id="matches-list" class="space-y-3">
+          <!-- JS will populate this dynamically -->
+          <div class="flex items-center gap-3 cursor-pointer" onclick="openMatchModal(0)">
+            <img src="https://randomuser.me/api/portraits/women/33.jpg" class="w-12 h-12 rounded-full">
+            <span>Emma</span>
+          </div>
+          <div class="flex items-center gap-3 cursor-pointer" onclick="openMatchModal(1)">
+            <img src="https://randomuser.me/api/portraits/women/34.jpg" class="w-12 h-12 rounded-full">
+            <span>Léa</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CENTER CARD -->
+    <div class="flex justify-center">
+      <div id="profile-card" class="bg-white rounded-2xl shadow-xl overflow-hidden w-full max-w-md lg:max-w-xl"></div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="hidden lg:flex flex-col gap-6">
+      <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-bold text-center mb-4">Infos du Profil</h3>
+        <div id="extra-info" class="space-y-2 text-sm"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- GALLERY -->
+<div id="gallery-modal" class="fixed inset-0 bg-black z-50 hidden flex items-center justify-center">
+  <button onclick="closeGallery()" class="absolute top-6 right-6 text-white text-4xl">&times;</button>
+  <button onclick="prevGallery()" class="absolute left-6 text-white text-6xl">‹</button>
+  <img id="gallery-img" class="w-full h-full object-contain">
+  <button onclick="nextGallery()" class="absolute right-6 text-white text-6xl">›</button>
+</div>
+
+<!-- LIKE MODAL -->
+<!-- LIKE MODAL -->
+<div id="like-modal"
+     class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center"
+     onclick="closeLikeModal()">
+
+  <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden relative"
+       onclick="event.stopPropagation()">
+
+    <button onclick="closeLikeModal()"
+            class="absolute top-3 right-3 text-2xl text-gray-700 hover:text-gray-900">
+      &times;
+    </button>
+
+    <img id="like-img" class="w-full h-72 object-cover">
+
+    <div class="p-4 text-center">
+      <h2 id="like-name" class="text-xl font-bold"></h2>
+      <p id="like-desc" class="text-gray-600 my-2"></p>
+
+      <div class="flex justify-center gap-10 mt-4">
+        <button onclick="closeLikeModal()"
+                class="bg-red-500 text-white px-6 py-3 rounded-full">
+          <i class="fa-solid fa-x"></i>
+        </button>
+
+        <button onclick="confirmLikeMatch()"
+                class="bg-green-500 text-white px-6 py-3 rounded-full">
+          <i class="fa-solid fa-heart"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- MATCH MODAL -->
+<div id="match-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center">
+  <div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center relative">
+    <button onclick="closeMatchModal()" class="absolute top-3 right-4 text-2xl">&times;</button>
+    <h2 class="text-2xl font-bold text-secondary mb-4">✨ C’est un match !</h2>
+    <img id="match-img" class="w-28 h-28 mx-auto rounded-full mb-4">
+    <p id="match-name" class="font-bold text-lg mb-6"></p>
+    <div class="flex flex-col gap-3">
+      <button onclick="viewMatchProfile()" class="bg-primary text-white py-3 rounded-full transition-colors duration-200 hover:bg-purple-700">👤 Voir le profil</button>
+      <button class="bg-secondary text-white py-3 rounded-full transition-colors duration-200 hover:bg-pink-700">💬 Envoyer un message</button>
+      <button class="bg-gray-200 py-3 rounded-full transition-colors duration-200 hover:bg-gray-400">❌ Se désapparier</button>
+      <button class="bg-red-500 text-white py-3 rounded-full transition-colors duration-200 hover:bg-red-700">🚫 Bloquer</button>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

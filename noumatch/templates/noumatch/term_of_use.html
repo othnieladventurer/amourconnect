@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NouMatch – Des rencontres sincères</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#8e24aa",
+            secondary: "#e91e63",
+            dark: "#2d0a3d",
+            accentPink: "#e91e63",
+            secondaryLight: "#f48fb1", 
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-white text-gray-800">
+
+<!-- NAVBAR -->
+<header class="fixed w-full bg-white/90 backdrop-blur shadow z-50">
+  <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+    <a href="/">
+      <h1 class="text-2xl font-bold text-primary flex items-center gap-2">
+        <i class="fa-solid fa-heart text-secondary"></i> NouMatch
+      </h1>
+    </a>
+
+    <!-- Back Home Link -->
+    <nav>
+      <a href="/" class="bg-secondary text-white px-4 py-2 rounded-full hover:opacity-90 transition">
+        Retour à l’accueil
+      </a>
+    </nav>
+  </div>
+</header>
+
+
+<!-- PAGE CONTENT -->
+<main class="pt-28 max-w-5xl mx-auto px-6 py-16">
+  <h2 class="text-4xl font-bold mb-6 text-center text-primary">Conditions d’utilisation</h2>
+
+  <p class="mb-6 text-gray-600">
+    Bienvenue sur NouMatch ! Ces conditions expliquent comment utiliser notre plateforme de manière sûre et respectueuse.
+    En accédant à NouMatch, vous acceptez ces règles.
+  </p>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">1. Éligibilité</h3>
+    <p class="text-gray-600">
+      Vous devez avoir au moins 18 ans pour utiliser NouMatch. Vous acceptez de fournir des informations exactes et sincères lors de la création de votre compte.
+    </p>
+  </section>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">2. Compte utilisateur</h3>
+    <p class="text-gray-600">
+      Vous êtes responsable de votre mot de passe et de toutes les activités liées à votre compte.
+      Nous pouvons suspendre ou supprimer un compte en cas de violation des règles.
+    </p>
+  </section>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">3. Comportement attendu</h3>
+    <p class="text-gray-600">
+      Sur NouMatch, nous encourageons le respect et la bienveillance. Vous ne devez pas :
+    </p>
+    <ul class="list-disc list-inside text-gray-600">
+      <li>Harceler ou menacer d’autres utilisateurs</li>
+      <li>Partager des contenus offensants, illégaux ou inappropriés</li>
+      <li>Usurper l’identité de quelqu’un d’autre</li>
+      <li>Envoyer du spam ou tenter d’escroquer d’autres utilisateurs</li>
+    </ul>
+  </section>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">4. Contenu et propriété</h3>
+    <p class="text-gray-600">
+      Vous conservez la propriété de vos photos et messages, mais vous accordez à NouMatch une licence pour les afficher sur la plateforme.
+      Nous nous réservons le droit de supprimer tout contenu violant nos règles.
+    </p>
+  </section>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">5. Confidentialité</h3>
+    <p class="text-gray-600">
+      Vos données personnelles sont protégées selon notre <a href="/privacy" class="text-secondary underline">Politique de confidentialité</a>.
+      Vous consentez à ce que nous utilisions vos informations pour améliorer votre expérience et sécuriser la plateforme.
+    </p>
+  </section>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">6. Responsabilité</h3>
+    <p class="text-gray-600">
+      NouMatch facilite les rencontres, mais ne peut être tenu responsable des interactions entre utilisateurs
+      ou de tout dommage lié à ces rencontres. Utilisez la plateforme avec discernement et prudence.
+    </p>
+  </section>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">7. Suspension et résiliation</h3>
+    <p class="text-gray-600">
+      Nous pouvons suspendre ou supprimer votre compte en cas de non-respect des conditions. Vous pouvez également supprimer votre compte à tout moment.
+    </p>
+  </section>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">8. Modifications des conditions</h3>
+    <p class="text-gray-600">
+      NouMatch peut mettre à jour ces conditions de temps en temps. Nous vous encourageons à les consulter régulièrement.
+    </p>
+  </section>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">9. Loi applicable</h3>
+    <p class="text-gray-600">
+      Ces conditions sont régies par la loi haïtienne. Tout litige sera soumis aux tribunaux compétents.
+    </p>
+  </section>
+
+  
+</main>
+
+
+
+<!-- FOOTER -->
+<footer class="bg-black text-gray-400 py-8 text-center text-sm">
+  <div class="mb-3">
+    © 2026 NouMatch — Des connexions sincères et respectueuses
+  </div>
+
+  <div class="flex justify-center gap-6 text-gray-500">
+    <a href="{% url 'noumatch:term_of_use' %}" class="hover:text-white transition">
+      Conditions d’utilisation
+    </a>
+    <span class="opacity-50">•</span>
+    <a href="{% url 'noumatch:privacy_policy' %}" class="hover:text-white transition">
+      Politique de confidentialité
+    </a>
+  </div>
+</footer>
+
+
+</body>
+</html>

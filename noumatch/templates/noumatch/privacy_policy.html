@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NouMatch – Des rencontres sincères</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#8e24aa",
+            secondary: "#e91e63",
+            dark: "#2d0a3d",
+            accentPink: "#e91e63",
+            secondaryLight: "#f48fb1", 
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-white text-gray-800">
+
+<!-- NAVBAR -->
+<header class="fixed w-full bg-white/90 backdrop-blur shadow z-50">
+  <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+    <a href="/">
+      <h1 class="text-2xl font-bold text-primary flex items-center gap-2">
+        <i class="fa-solid fa-heart text-secondary"></i> NouMatch
+      </h1>
+    </a>
+
+    <!-- Back Home Link -->
+    <nav>
+      <a href="/" class="bg-secondary text-white px-4 py-2 rounded-full hover:opacity-90 transition">
+        Retour à l’accueil
+      </a>
+    </nav>
+  </div>
+</header>
+
+
+<body class="bg-white text-gray-800">
+
+<!-- NAVBAR -->
+<header class="fixed w-full bg-white/90 backdrop-blur shadow z-50">
+  <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+    <h1 class="text-2xl font-bold text-primary flex items-center gap-2">
+      <i class="fa-solid fa-heart text-secondary"></i> NouMatch
+    </h1>
+    <nav>
+      <a href="/" class="bg-secondary text-white px-4 py-2 rounded-full hover:opacity-90 transition">
+        Retour à l’accueil
+      </a>
+    </nav>
+  </div>
+</header>
+
+<!-- PAGE CONTENT -->
+<main class="pt-28 max-w-5xl mx-auto px-6 py-16">
+  <h2 class="text-4xl font-bold mb-6 text-center text-primary">Politique de confidentialité</h2>
+
+  <p class="mb-6 text-gray-600">
+    Chez NouMatch, nous prenons votre vie privée au sérieux. Cette page explique comment nous collectons, utilisons et protégeons vos informations personnelles.
+  </p>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">1. Informations que nous collectons</h3>
+    <p class="text-gray-600">
+      Nous recueillons des informations que vous nous fournissez directement (profil, photos, messages) ainsi que des données techniques comme votre appareil, navigateur et localisation approximative pour améliorer l’expérience.
+    </p>
+  </section>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">2. Comment nous utilisons vos informations</h3>
+    <p class="text-gray-600">
+      Vos données servent à :
+    </p>
+    <ul class="list-disc list-inside text-gray-600">
+      <li>Faciliter les connexions et discussions avec d’autres membres</li>
+      <li>Améliorer la plateforme et la sécurité</li>
+      <li>Vous envoyer des notifications importantes ou des mises à jour</li>
+    </ul>
+  </section>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">3. Partage et confidentialité</h3>
+    <p class="text-gray-600">
+      Nous ne vendons ni ne louons vos informations à des tiers. Nous pouvons partager certaines données de manière anonyme ou pour respecter la loi, protéger nos droits, ou prévenir des abus.
+    </p>
+  </section>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">4. Sécurité</h3>
+    <p class="text-gray-600">
+      Nous mettons en place des mesures techniques et organisationnelles pour protéger vos informations contre les accès non autorisés ou la divulgation. Cependant, aucun système n’est totalement infaillible.
+    </p>
+  </section>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">5. Vos droits</h3>
+    <p class="text-gray-600">
+      Vous pouvez accéder à vos informations, les corriger ou supprimer votre compte à tout moment. Contactez-nous via la page d’assistance pour exercer ces droits.
+    </p>
+  </section>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">6. Cookies et technologies similaires</h3>
+    <p class="text-gray-600">
+      Nous utilisons des cookies pour améliorer votre expérience, analyser l’utilisation de la plateforme et personnaliser le contenu. Vous pouvez gérer vos préférences via votre navigateur.
+    </p>
+  </section>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">7. Modifications de la politique</h3>
+    <p class="text-gray-600">
+      Cette politique peut être mise à jour de temps en temps. Nous vous recommandons de la consulter régulièrement pour rester informé.
+    </p>
+  </section>
+
+  <section class="mb-8">
+    <h3 class="text-2xl font-semibold mb-2">8. Contact</h3>
+    <p class="text-gray-600">
+      Pour toute question concernant votre vie privée, vous pouvez nous contacter à <a href="mailto:support@noumatch.com" class="text-secondary underline">support@noumatch.com</a>.
+    </p>
+  </section>
+
+
+</main>
+
+
+<!-- FOOTER -->
+<footer class="bg-black text-gray-400 py-8 text-center text-sm">
+  <div class="mb-3">
+    © 2026 NouMatch — Des connexions sincères et respectueuses
+  </div>
+
+  <div class="flex justify-center gap-6 text-gray-500">
+    <a href="{% url 'noumatch:term_of_use' %}" class="hover:text-white transition">
+      Conditions d’utilisation
+    </a>
+    <span class="opacity-50">•</span>
+    <a href="{% url 'noumatch:privacy_policy' %}" class="hover:text-white transition">
+      Politique de confidentialité
+    </a>
+  </div>
+</footer>
+</body>
+</html>

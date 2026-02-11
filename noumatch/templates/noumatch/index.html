@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NouMatch – Des rencontres sincères</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#8e24aa",
+            secondary: "#e91e63",
+            dark: "#2d0a3d",
+            accentPink: "#e91e63",
+            secondaryLight: "#f48fb1", 
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+
+<style>
+    *{
+        scroll-behavior: smooth;
+    }
+</style>
+
+<body class="text-gray-800">
+
+<!-- NAVBAR -->
+<header class="fixed w-full bg-white/90 backdrop-blur shadow z-50">
+  <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+    <a href="/">
+      <h1 class="text-2xl font-bold text-primary flex items-center gap-2">
+        <i class="fa-solid fa-heart text-secondary"></i> NouMatch
+      </h1>
+    </a>
+
+    <!-- Desktop Menu -->
+    <nav class="hidden md:flex gap-6 items-center">
+      <a href="#who" class="hover:text-secondary transition">Qui sommes-nous</a>
+      <a href="#what" class="hover:text-secondary transition">Ce que nous faisons</a>
+      <a href="#features" class="hover:text-secondary transition">L'esprit NouMatch</a>
+      
+      {% if user.is_authenticated %}
+      <a href="{% url 'nmdashboard:dashboard' %}" class="bg-secondary text-white px-5 py-2 rounded-full hover:opacity-90 transition">
+        NouMatch
+      {% else %}
+      <a href="{% url 'users:login' %}" class="bg-secondary text-white px-5 py-2 rounded-full hover:opacity-90 transition">
+        Se connecter
+
+      {% endif %}
+      </a>
+    </nav>
+
+    <!-- Mobile Hamburger -->
+    <div class="md:hidden flex items-center">
+      <button id="mobile-menu-button" class="text-gray-800 focus:outline-none">
+        <i class="fa-solid fa-bars text-2xl"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur shadow-lg">
+    <div class="flex flex-col px-6 py-4 gap-4">
+      <a href="#who" class="hover:text-secondary transition">Qui sommes-nous</a>
+      <a href="#what" class="hover:text-secondary transition">Ce que nous faisons</a>
+      <a href="#features" class="hover:text-secondary transition">Fonctionnalités</a>
+      <a href="#login-cta" class="bg-secondary text-white px-5 py-2 rounded-full hover:opacity-90 transition text-center">
+        Se connecter
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO (FULL BACKGROUND) -->
+<section class="min-h-screen flex items-center bg-cover bg-center relative"
+style="background-image:url('https://images.pexels.com/photos/1415131/pexels-photo-1415131.jpeg')">
+
+  <div class="absolute inset-0 bg-black/60"></div>
+
+  <div class="relative max-w-4xl mx-auto px-6 text-center text-white">
+    <h2 class="text-4xl md:text-6xl font-bold mb-6">
+      Des rencontres sincères.<br>
+     <span class="text-secondaryLight">Des connexions qui durent.</span>
+
+    </h2>
+
+    <p class="text-lg md:text-xl mb-8 opacity-90">
+      NouMatch est une plateforme de rencontres pensée pour les personnes
+      qui recherchent plus qu’un simple swipe.  
+      Ici, les relations commencent par le respect, la compatibilité et l’authenticité.
+    </p>
+
+    <a href="#join"
+       class="inline-block bg-secondary px-10 py-4 rounded-full text-lg font-semibold hover:opacity-90 transition">
+      Créer mon profil
+    </a>
+  </div>
+</section>
+
+<!-- WHO WE ARE -->
+<section id="who" class="py-24 bg-white">
+  <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+
+    <div>
+      <h3 class="text-3xl font-bold mb-6">Qui sommes-nous</h3>
+
+      <p class="mb-4 text-gray-600">
+        NouMatch est né d’une idée simple : créer un espace où les rencontres
+        se font avec sincérité et respect. Nous voulons offrir aux gens de notre
+        région une vraie chance de se connecter, au-delà des profils superficiels.
+      </p>
+
+      <p class="mb-4 text-gray-600">
+        Nous croyons que chaque rencontre a son importance, et que chacun mérite
+        de découvrir des personnes qui partagent ses valeurs, ses passions et
+        son envie de construire quelque chose de réel.
+      </p>
+
+      <p class="text-gray-600">
+        Notre objectif est de rendre les rencontres en ligne **humaines, authentiques
+        et chaleureuses**, pour que chaque conversation puisse se transformer
+        en une véritable connexion.
+      </p>
+    </div>
+
+    <img src="https://images.pexels.com/photos/984941/pexels-photo-984941.jpeg"
+         class="rounded-2xl shadow-xl"
+         alt="Deux amis discutant et partageant un moment">
+  </div>
+</section>
+
+<!-- WHAT WE DO -->
+<section id="what" class="py-24 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-6 text-center">
+    <h3 class="text-3xl font-bold mb-12">Ce que nous faisons</h3>
+    <div class="grid md:grid-cols-3 gap-10">
+      <div class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition">
+        <i class="fa-solid fa-user-check text-4xl text-primary mb-4"></i>
+        <h4 class="font-bold text-xl mb-3">Profils authentiques</h4>
+        <p class="text-gray-600">
+          Chaque utilisateur crée un profil détaillé mettant en avant
+          sa personnalité, ses valeurs et ses intentions.
+        </p>
+      </div>
+      <div class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition">
+        <i class="fa-solid fa-brain text-4xl text-secondary mb-4"></i>
+        <h4 class="font-bold text-xl mb-3">Matching intelligent</h4>
+        <p class="text-gray-600">
+          Nos algorithmes analysent les centres d’intérêt, les objectifs de vie
+          et les compatibilités pour proposer des connexions pertinentes.
+        </p>
+      </div>
+      <div class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition">
+        <i class="fa-solid fa-shield-heart text-4xl text-primary mb-4"></i>
+        <h4 class="font-bold text-xl mb-3">Sécurité & respect</h4>
+        <p class="text-gray-600">
+          Modération active, outils de signalement et protection des données
+          pour garantir un environnement sain.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<!-- NOUMATCH SPIRIT -->
+<section id="features" class="py-24 bg-white">
+  <div class="max-w-7xl mx-auto px-6">
+
+    <!-- Section intro -->
+    <div class="text-center mb-16">
+      <h3 class="text-3xl font-bold mb-4">L’esprit NouMatch</h3>
+      <p class="text-gray-600 max-w-2xl mx-auto">
+        Ici, on prend le temps. On discute, on se découvre, et on laisse les connexions
+        se créer naturellement, sans pression ni faux-semblants.
+      </p>
+    </div>
+
+    <!-- Cards -->
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
+      <!-- Card 1 -->
+      <div class="group rounded-2xl overflow-hidden shadow hover:shadow-xl transition">
+        <div class="relative h-48 overflow-hidden">
+
+          <!-- Image wrapper -->
+          <div class="absolute inset-0 transition-transform duration-500 group-hover:scale-105">
+            <img src="static/img/ChatGPT Image Feb 6, 2026, 03_37_03 PM.png"
+                 alt="Conversations naturelles"
+                 class="w-full h-full object-cover">
+          </div>
+
+          <!-- Dark overlay -->
+          <div class="absolute inset-0 bg-black/40 z-10 transition-opacity duration-500 group-hover:opacity-90"></div>
+
+          <!-- Text overlay -->
+          <div class="absolute bottom-4 left-4 text-white z-20">
+            <i class="fa-solid fa-comments text-2xl mb-2"></i>
+            <h4 class="font-bold text-lg">Des échanges simples</h4>
+          </div>
+        </div>
+
+        <div class="p-6 bg-white">
+          <p class="text-gray-600">
+            Des conversations qui commencent naturellement, sans phrases toutes faites
+            ni attentes irréalistes. Juste deux personnes qui apprennent à se connaître.
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="group rounded-2xl overflow-hidden shadow hover:shadow-xl transition">
+        <div class="relative h-48 overflow-hidden">
+
+          <!-- Image wrapper -->
+          <div class="absolute inset-0 transition-transform duration-500 group-hover:scale-105">
+            <img src="https://images.pexels.com/photos/35044623/pexels-photo-35044623.jpeg"
+                 alt="Profils qui te parlent"
+                 class="w-full h-full object-cover">
+          </div>
+
+          <!-- Dark overlay -->
+          <div class="absolute inset-0 bg-black/40 z-10 transition-opacity duration-500 group-hover:opacity-90"></div>
+
+          <!-- Text overlay -->
+          <div class="absolute bottom-4 left-4 text-white z-20">
+            <i class="fa-solid fa-heart text-2xl mb-2"></i>
+            <h4 class="font-bold text-lg">Des profils qui te parlent</h4>
+          </div>
+        </div>
+
+        <div class="p-6 bg-white">
+          <p class="text-gray-600">
+            Prenez le temps de découvrir des personnes qui partagent votre façon
+            de voir les choses, vos valeurs et votre énergie.
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="group rounded-2xl overflow-hidden shadow hover:shadow-xl transition">
+        <div class="relative h-48 overflow-hidden">
+
+          <!-- Image wrapper -->
+          <div class="absolute inset-0 transition-transform duration-500 group-hover:scale-105">
+            <img src="static/img/ChatGPT Image Feb 6, 2026, 03_43_18 PM.png"
+                 alt="Authenticité"
+                 class="w-full h-full object-cover">
+          </div>
+
+          <!-- Dark overlay -->
+          <div class="absolute inset-0 bg-black/40 z-10 transition-opacity duration-500 group-hover:opacity-90"></div>
+
+          <!-- Text overlay -->
+          <div class="absolute bottom-4 left-4 text-white z-20">
+            <i class="fa-solid fa-user text-2xl mb-2"></i>
+            <h4 class="font-bold text-lg">Sois simplement toi</h4>
+          </div>
+        </div>
+
+        <div class="p-6 bg-white">
+          <p class="text-gray-600">
+            Pas besoin d’en faire trop. Ici, l’authenticité compte plus que la perfection.
+            Les vraies connexions commencent quand on reste soi-même.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+<!-- ENGAGE IN PERSON SECTION -->
+<section class="py-24 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+
+    <!-- Left Image -->
+    <div class="relative">
+      <img src="https://img.freepik.com/premium-photo/love-phone-social-media-with-black-couple-sofa-home-living-room-together-relax-app-happy-smile-with-man-woman-apartment-streaming-with-bonding-online-shopping_590464-495126.jpg?semt=ais_hybrid&w=740&q=80" 
+           alt="Rencontres en personne" 
+           class="rounded-2xl shadow-lg h-[500px] w-full object-cover">
+    </div>
+
+    <!-- Right Text -->
+    <div class="flex flex-col justify-center">
+      <h3 class="text-3xl font-bold mb-6">Passez du virtuel au réel</h3>
+      <p class="text-gray-600 mb-8">
+        Rencontrez des personnes qui partagent vos centres d’intérêt, vos valeurs
+        et votre énergie. Discutez, riez, créez des liens et laissez la rencontre
+        se faire naturellement. Ici, ce qui compte, c’est la vraie connexion et les
+        moments qui en découlent.
+      </p>
+      <a href="#join" 
+        class="inline-flex bg-secondary text-white px-8 py-4 rounded-full font-semibold text-lg hover:opacity-90 transition">
+        Engage la conversation
+      </a>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- LOGIN CTA -->
+<section id="login-cta" class="relative py-24 text-white">
+  <!-- Background image -->
+  <div class="absolute inset-0 bg-cover bg-center" 
+       style="background-image: url('https://img.freepik.com/free-photo/romantic-black-couple-sitting-restaurant-wearing-elegant-clothes_1157-51941.jpg');"></div>
+  
+  <!-- Dark overlay for readability -->
+  <div class="absolute inset-0 bg-black/60"></div>
+
+  <!-- Content -->
+  <div class="relative max-w-4xl mx-auto px-6 text-center">
+    <h3 class="text-4xl font-bold mb-6">Bienvenue sur NouMatch</h3>
+    <p class="mb-10 text-gray-300 text-lg">
+      Connectez-vous pour continuer votre parcours vers des connexions authentiques et significatives.
+      Accédez à votre profil, découvrez vos matchs et commencez à échanger dès maintenant.
+    </p>
+    <div class="flex justify-center">
+        <a href="/login.html" 
+            class="bg-white text-accentPink px-10 py-4 rounded-full font-semibold text-lg hover:opacity-90 transition duration-300">
+            Se connecter
+        </a>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+<!-- TESTIMONIALS -->
+<section id="testimonials" class="py-24 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-6 text-center">
+    <h3 class="text-3xl font-bold mb-12">Ce que disent nos membres</h3>
+
+    <div class="grid md:grid-cols-3 gap-8">
+
+      <!-- Testimonial 1 -->
+      <div class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition">
+        <p class="text-gray-600 mb-4">
+          "Grâce à NouMatch, j’ai rencontré quelqu’un qui partage vraiment mes valeurs.
+          Les échanges sont naturels et je me suis sentie en confiance dès le début."
+        </p>
+        <div class="flex items-center justify-center gap-4 mt-4">
+          <img src="https://randomuser.me/api/portraits/women/89.jpg" 
+               class="w-12 h-12 rounded-full" alt="Membre">
+          <div class="text-left">
+            <h5 class="font-bold text-gray-800">Clara, 27 ans</h5>
+            <p class="text-gray-500 text-sm">Port-au-Prince, Haïti</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial 2 -->
+      <div class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition">
+        <p class="text-gray-600 mb-4">
+          "J’ai testé plusieurs applis avant, mais NouMatch est différent.
+          Les discussions sont simples, vraies, et sans pression."
+        </p>
+        <div class="flex items-center justify-center gap-4 mt-4">
+          <img src="https://randomuser.me/api/portraits/men/30.jpg" 
+               class="w-12 h-12 rounded-full" alt="Membre">
+          <div class="text-left">
+            <h5 class="font-bold text-gray-800">Jean, 31 ans</h5>
+            <p class="text-gray-500 text-sm">Port-au-Prince, Haïti</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial 3 -->
+      <div class="bg-white p-8 rounded-2xl shadow hover:shadow-lg transition">
+        <p class="text-gray-600 mb-4">
+          "Ce que j’aime ici, c’est l’ambiance.
+          On sent que les gens sont là pour de vraies connexions, pas juste pour passer le temps."
+        </p>
+        <div class="flex items-center justify-center gap-4 mt-4">
+          <img src="https://randomuser.me/api/portraits/women/92.jpg" 
+               class="w-12 h-12 rounded-full" alt="Membre">
+          <div class="text-left">
+            <h5 class="font-bold text-gray-800">Sophie, 29 ans</h5>
+            <p class="text-gray-500 text-sm">Les Cayes, Haïti</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+
+<!-- FOOTER -->
+<footer class="bg-black text-gray-400 py-8 text-center text-sm">
+  <div class="mb-3">
+    © 2026 NouMatch — Des connexions sincères et respectueuses
+  </div>
+
+  <div class="flex justify-center gap-6 text-gray-500">
+    <a href="{% url 'noumatch:term_of_use' %}" class="hover:text-white transition">
+      Conditions d’utilisation
+    </a>
+    <span class="opacity-50">•</span>
+    <a href="{% url 'noumatch:privacy_policy' %}" class="hover:text-white transition">
+      Politique de confidentialité
+    </a>
+  </div>
+</footer>
+
+
+<!-- Mobile menu toggle script -->
+<script>
+  const menuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  menuButton.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+  });
+</script>
+
+</body>
+</html>

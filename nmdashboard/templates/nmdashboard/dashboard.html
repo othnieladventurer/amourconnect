@@ -1,0 +1,347 @@
+{% extends 'nmdashboard/base.html' %}
+
+{% block content %}
+
+<!-- Inject JSON -->
+<script id="profiles-data" type="application/json">
+{{ profiles_json|safe }}
+</script>
+
+<script id="likes-data" type="application/json">
+{{ likes_received|safe }}
+</script>
+
+<main class="flex-1 pt-28 px-4">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- LEFT -->
+    <div class="hidden lg:flex flex-col gap-6">
+      <!-- LIKES -->
+      <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-bold text-center mb-4">Ils vous aiment</h3>
+        <div id="likes-container" class="flex justify-center gap-3"></div>
+      </div>
+
+    <!-- MATCHES -->
+
+    <div class="bg-white rounded-2xl shadow p-4">
+      <h3 class="font-bold text-center mb-4">Matchs</h3>
+      <div id="matches-list" class="space-y-3">
+        {% if matches %}
+          {% for match in matches %}
+            <div class="flex items-center gap-3 cursor-pointer {% if not is_paid and forloop.counter > 2 %}blur-sm{% endif %}" onclick="openMatchModal({{ forloop.counter0 }})">
+              <img src="{{ match.other_user.profile_photo }}" class="w-12 h-12 rounded-full">
+              <span>{{ match.other_user.username }}</span>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p id="no-matches-msg" class="text-center text-gray-500">Pas encore de matchs.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    </div>
+
+    <!-- CENTER CARD -->
+    <div class="flex justify-center mb-5">
+      <div id="profile-card" class="bg-white rounded-2xl shadow-xl overflow-hidden w-full max-w-md lg:max-w-xl">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="hidden lg:flex flex-col gap-6">
+      <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-bold text-center mb-4">Infos du Profil</h3>
+        <div id="extra-info" class="space-y-2 text-sm">
+          <p id="profile-name"><b>Nom:</b> -</p>
+          <p id="profile-age"><b>Âge:</b> -</p>
+          <p id="profile-location"><b>Localisation:</b> -</p>
+          <p id="profile-career"><b>Carrière:</b> -</p>
+          <p id="profile-passions"><b>Passions:</b> -</p>
+          <p id="profile-hobbies"><b>Hobbies:</b> -</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- LIKE MODAL -->
+<div id="like-modal"
+     class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center"
+     onclick="closeLikeModal()">
+  <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden relative"
+       onclick="event.stopPropagation()">
+    <button onclick="closeLikeModal()"
+            class="absolute top-3 right-3 text-2xl text-gray-700 hover:text-gray-900">&times;</button>
+    <img id="like-img" class="w-full h-72 object-cover" alt="Profile Photo">
+    <div class="p-4 text-center">
+      <h2 id="like-name" class="text-xl font-bold"></h2>
+      <p id="like-desc" class="text-gray-600 my-2"></p>
+      <div id="like-buttons" class="flex justify-center gap-4 mt-4">
+        <!-- Buttons populated dynamically by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MATCH MODAL -->
+<div id="match-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
+  <div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center relative">
+    <button onclick="closeMatchModal()" class="absolute top-3 right-4 text-2xl">&times;</button>
+    <h2 class="text-2xl font-bold text-secondary mb-4">✨ C’est un match !</h2>
+    <img id="match-img" class="w-28 h-28 mx-auto rounded-full mb-4">
+    <p id="match-name" class="font-bold text-lg mb-6"></p>
+    <div class="flex flex-col gap-3">
+      <button onclick="viewMatchProfile()" class="bg-primary text-white py-3 rounded-full transition-colors duration-200 hover:bg-purple-700">👤 Voir le profil</button>
+      <button class="bg-secondary text-white py-3 rounded-full transition-colors duration-200 hover:bg-pink-700">💬 Envoyer un message</button>
+      <button class="bg-gray-200 py-3 rounded-full transition-colors duration-200 hover:bg-gray-400">❌ Se désapparier</button>
+      <button class="bg-red-500 text-white py-3 rounded-full transition-colors duration-200 hover:bg-red-700">🚫 Bloquer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const profiles = JSON.parse(document.getElementById("profiles-data").textContent || "[]");
+const likes_received = JSON.parse(document.getElementById("likes-data").textContent || "[]");
+
+let currentProfile = 0;
+let currentLikeIndex = null;
+let currentLikeId = null;
+
+const card = document.getElementById("profile-card");
+const extra = document.getElementById("extra-info");
+
+/* ===============================
+   POPULATE LIKES SIDEBAR
+================================ */
+function populateLikes() {
+  const container = document.getElementById("likes-container");
+  if (!likes_received || !container) return;
+  container.innerHTML = "";
+
+  if (likes_received.length === 0) {
+    container.innerHTML = `<p class="text-center text-gray-500">Pas encore de likes, continuez à liker !</p>`;
+    return;
+  }
+
+  likes_received.forEach((like, index) => {
+    const img = document.createElement("img");
+    img.src = like.from_user.profile_photo || "/static/images/default-profile.png";
+    img.className = "w-14 h-14 rounded-full cursor-pointer";
+    img.onclick = () => openLikeModal(index);
+    container.appendChild(img);
+  });
+}
+
+/* ===============================
+   SHOW MAIN PROFILE CARD
+================================ */
+function showProfile(index) {
+  if (!card || !extra) return;
+  if (!profiles.length || !profiles[index]) {
+    card.innerHTML = `<div class="p-10 text-center"><h2 class="text-2xl font-bold mb-2">No profile available for match yet</h2><p class="text-gray-500">Come back later</p></div>`;
+    extra.innerHTML = `<p class="italic text-gray-400">Your possible match hobbies will be shared here</p>`;
+    return;
+  }
+
+  const p = profiles[index];
+
+  let ageText = "-";
+  if (p.birth_date) {
+    const birth = new Date(p.birth_date);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    ageText = age;
+  }
+
+  const locationText = p.location || "-";
+
+  card.innerHTML = `
+    <div class="relative h-96">
+      <img src="${p.profile_photo || ''}" class="w-full h-full object-cover">
+    </div>
+    <div class="p-6 text-center">
+      <h2 class="text-2xl font-bold">${p.username}</h2>
+      <p class="text-gray-600 my-1"><b>Âge:</b> ${ageText}</p>
+      <p class="text-gray-600 my-1"><b>Localisation:</b> ${locationText}</p>
+      <p class="my-4">${p.bio || ""}</p>
+      <div class="flex justify-center gap-12 mt-4">
+        <button onclick="sendAction('pass', ${p.id})" class="bg-red-500 text-white px-6 py-3 rounded-full text-xl"><i class="fa-solid fa-x"></i></button>
+        <button onclick="sendAction('like', ${p.id})" class="bg-green-500 text-white px-6 py-3 rounded-full text-xl"><i class="fa-solid fa-heart"></i></button>
+      </div>
+    </div>
+  `;
+
+  extra.innerHTML = `
+    <p><b>Carrière:</b> ${p.career || "-"}</p>
+    <p><b>Passions:</b> ${p.passions || "-"}</p>
+    <p><b>Hobbies:</b> ${p.hobbies || "-"}</p>
+  `;
+}
+
+
+/* ===============================
+   SEND LIKE OR PASS (with Match popup)
+================================ */
+function sendAction(action, userId) {
+  fetch("{% url 'nmdashboard:like_or_pass' %}", {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": "{{ csrf_token }}",
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `action=${action}&user_id=${userId}`,
+  })
+  .then(res => res.json())
+  .then(data => {
+    // ✅ Show match modal instantly if it's a mutual like
+    if (data.is_match && data.matched_user) {
+      showMatchModal(data.matched_user);
+      addToMatchesList(data.matched_user); // optional: add to matches sidebar
+    }
+
+    // Proceed to next profile and refresh likes
+    nextProfile();
+    populateLikes();
+  })
+  .catch(() => nextProfile());
+}
+
+/* ===============================
+   NEXT PROFILE ANIMATION
+================================ */
+function nextProfile() {
+  card.classList.remove("slide-in","slide-out-left","slide-out-right");
+  card.offsetWidth;
+  card.classList.add("slide-out-left");
+  card.addEventListener("animationend", () => {
+    currentProfile++;
+    showProfile(currentProfile);
+    card.classList.add("slide-in");
+  }, { once: true });
+}
+
+/* ===============================
+   LIKE MODAL
+================================ */
+function openLikeModal(index) {
+  if (!likes_received || !likes_received[index]) return;
+  const like = likes_received[index];
+
+  currentLikeIndex = index;
+  currentLikeId = like.from_user.id;
+
+  document.getElementById("like-img").src = like.from_user.profile_photo || "/static/images/default-profile.png";
+  document.getElementById("like-name").innerText = like.from_user.username;
+  document.getElementById("like-desc").innerText = like.from_user.bio || "";
+
+  const likeButtonsContainer = document.getElementById("like-buttons");
+  likeButtonsContainer.innerHTML = "";
+
+  // Check if current user has already liked this user
+  const likedUserIds = profiles.map(p => p.id);
+  const alreadyLikedEachOther = likedUserIds.includes(like.from_user.id);
+
+  if (alreadyLikedEachOther) {
+    const viewBtn = document.createElement("button");
+    viewBtn.className = "bg-blue-500 text-white px-6 py-3 rounded-full";
+    viewBtn.innerText = "Voir Profil";
+    viewBtn.onclick = () => viewLikeProfile(index);
+    likeButtonsContainer.appendChild(viewBtn);
+  } else {
+    const passBtn = document.createElement("button");
+    passBtn.className = "bg-red-500 text-white px-6 py-3 rounded-full";
+    passBtn.innerHTML = '<i class="fa-solid fa-x"></i>';
+    passBtn.onclick = () => sendAction('pass', currentLikeId);
+
+    const heartBtn = document.createElement("button");
+    heartBtn.className = "bg-green-500 text-white px-6 py-3 rounded-full";
+    heartBtn.innerHTML = '<i class="fa-solid fa-heart"></i>';
+    heartBtn.onclick = () => sendAction('like', currentLikeId);
+
+    const viewBtn = document.createElement("button");
+    viewBtn.className = "bg-blue-500 text-white px-6 py-3 rounded-full";
+    viewBtn.innerText = "Voir Profil";
+    viewBtn.onclick = () => viewLikeProfile(index);
+
+    likeButtonsContainer.appendChild(passBtn);
+    likeButtonsContainer.appendChild(heartBtn);
+    likeButtonsContainer.appendChild(viewBtn);
+  }
+
+  document.getElementById("like-modal").classList.remove("hidden");
+}
+
+function closeLikeModal() { document.getElementById("like-modal").classList.add("hidden"); }
+
+function viewLikeProfile(index) {
+  if (index === null) return;
+  closeLikeModal();
+  showProfileById(likes_received[index].from_user.id);
+}
+
+function showProfileById(userId) {
+  const index = profiles.findIndex(p => p.id === userId);
+  if (index !== -1) {
+    currentProfile = index;
+    showProfile(currentProfile);
+  }
+}
+
+/* ===============================
+   MATCH MODAL
+================================ */
+function showMatchModal(user) {
+  document.getElementById("match-name").innerText = user.username;
+  document.getElementById("match-img").src = user.profile_photo || "/static/images/default-profile.png";
+  document.getElementById("match-modal").classList.remove("hidden");
+}
+function closeMatchModal() { document.getElementById("match-modal").classList.add("hidden"); }
+
+/* ===============================
+   INIT
+================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  showProfile(0);
+  populateLikes();
+});
+
+
+
+
+
+//Add match List
+function addToMatchesList(user) {
+  const matchesList = document.getElementById("matches-list");
+  if (!matchesList) return;
+
+  // Remove "Pas encore de matchs" message if it exists
+  const noMatchMsg = document.getElementById("no-matches-msg");
+  if (noMatchMsg) noMatchMsg.remove();
+
+  // Create match container
+  const div = document.createElement("div");
+  div.className = "flex items-center gap-3 cursor-pointer";
+  div.onclick = () => showMatchModal(user);
+
+  const img = document.createElement("img");
+  img.src = user.profile_photo || "/static/images/default-profile.png";
+  img.className = "w-12 h-12 rounded-full";
+
+  const span = document.createElement("span");
+  span.innerText = user.username;
+
+  div.appendChild(img);
+  div.appendChild(span);
+
+  // Append the new match at the end
+  matchesList.appendChild(div);
+}
+
+</script>
+
+{% endblock content %}

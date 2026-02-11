@@ -1,0 +1,148 @@
+{% extends 'nmdashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- MAIN CONTENT -->
+<main class="flex-1 pt-28 px-4">
+  <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow p-6">
+    <h2 class="text-2xl font-bold text-center mb-6">Mon Profil</h2>
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- Profile Photo -->
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Photo de profil</label>
+        {% if user.profile_photo %}
+          <img src="{{ user.profile_photo.url }}" class="w-32 h-32 rounded-full object-cover mb-2">
+        {% endif %}
+        <input type="file" name="profile_photo" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+      </div>
+
+      <!-- MULTIPLE PICTURES -->
+      <div class="mb-6">
+        <label class="block font-semibold mb-2">Galerie (max 10 photos)</label>
+        <div class="grid grid-cols-5 gap-3">
+          <!-- Existing pictures -->
+          {% for pic in pictures %}
+            <div class="w-full pb-full relative border border-gray-300 rounded-lg overflow-hidden">
+              <img src="{{ pic.image.url }}" class="absolute inset-0 w-full h-full object-cover">
+            </div>
+          {% endfor %}
+
+          <!-- Add new pictures -->
+          {% if pictures|length < 10 %}
+            <label class="w-full pb-full relative border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-600">
+              <span class="text-4xl text-gray-400 font-bold">+</span>
+              <input type="file" name="pictures" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" multiple>
+            </label>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Username -->
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Nom d'utilisateur</label>
+        <input type="text" name="username" value="{{ user.username }}" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+      </div>
+
+      <!-- Email -->
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Email</label>
+        <input type="email" name="email" value="{{ user.email }}" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+      </div>
+
+      <!-- Bio -->
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Bio</label>
+        <textarea name="bio" class="w-full border border-gray-300 rounded-lg px-3 py-2">{{ user.bio }}</textarea>
+      </div>
+
+      <!-- Gender -->
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Genre</label>
+        <select name="gender" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+          <option value="">-- Choisir --</option>
+          <option value="male" {% if user.gender == "male" %}selected{% endif %}>Homme</option>
+          <option value="female" {% if user.gender == "female" %}selected{% endif %}>Femme</option>
+          <option value="other" {% if user.gender == "other" %}selected{% endif %}>Autre</option>
+        </select>
+      </div>
+
+      <!-- Interested in -->
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Intéressé(e) par</label>
+        <select name="interested_in" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+          <option value="">-- Choisir --</option>
+          <option value="male" {% if user.interested_in == "male" %}selected{% endif %}>Hommes</option>
+          <option value="female" {% if user.interested_in == "female" %}selected{% endif %}>Femmes</option>
+          <option value="everyone" {% if user.interested_in == "everyone" %}selected{% endif %}>Tout le monde</option>
+        </select>
+      </div>
+
+      <!-- Birth Date -->
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Date de naissance</label>
+        <input type="date" name="birth_date"
+               value="{{ user.birth_date|date:'Y-m-d' }}"
+               class="w-full border border-gray-300 rounded-lg px-3 py-2">
+      </div>
+
+      <!-- Location -->
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Localisation</label>
+        <input type="text" name="location" value="{{ user.location }}" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+      </div>
+
+      <!-- Height -->
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Taille (cm)</label>
+        <input type="number" name="height" value="{{ user.height }}" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+      </div>
+
+      <!-- Career -->
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Carrière</label>
+        <input type="text" name="career" value="{{ user.career }}" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+      </div>
+
+      <!-- Education -->
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Éducation</label>
+        <input type="text" name="education" value="{{ user.education }}" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+      </div>
+
+      <!-- Passions -->
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Passions (séparées par des virgules)</label>
+        <input type="text" name="passions" value="{{ user.passions }}" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+      </div>
+
+      <!-- Hobbies -->
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Hobbies (séparés par des virgules)</label>
+        <input type="text" name="hobbies" value="{{ user.hobbies }}" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+      </div>
+
+      <!-- Favorite Music -->
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Musique favorite (séparée par des virgules)</label>
+        <input type="text" name="favorite_music" value="{{ user.favorite_music }}" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+      </div>
+
+      <!-- Submit -->
+      <div class="text-center mt-6">
+        <button type="submit" class="bg-primary text-white px-6 py-3 rounded-full hover:bg-purple-700">💾 Sauvegarder</button>
+      </div>
+
+    </form>
+  </div>
+</main>
+
+<style>
+/* Ensure square boxes for gallery */
+.pb-full {
+  padding-bottom: 100%;
+}
+</style>
+
+{% endblock content %}
