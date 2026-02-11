@@ -48,9 +48,8 @@ CSRF_TRUSTED_ORIGINS = [
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-ENVIRONMENT = config("ENVIRONMENT", default="production").lower()
-DEBUG = True if ENVIRONMENT == "development" else False
-
+ENVIRONMENT = env("ENVIRONMENT", default="production").lower()
+DEBUG = ENVIRONMENT == "development"
 
 
 # Application definition
