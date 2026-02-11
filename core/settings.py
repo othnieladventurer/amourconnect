@@ -30,7 +30,16 @@ SECRET_KEY = 'django-insecure-p6%y6_zpiu13eoy^o#xq0s1y4+tzg-%4y6%k=3o*&80lzlm4pl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1',    'noumatch.up.railway.app']
+
+
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://noumatch.up.railway.app',
+
+
+]
+
 
 
 
