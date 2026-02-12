@@ -45,63 +45,136 @@ tailwind.config = {
 <!-- NAVBAR -->
 <header class="fixed w-full bg-white/90 backdrop-blur shadow z-50">
   <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+
+    <!-- Logo -->
     <a href="{% url 'nmdashboard:dashboard' %}" class="flex items-center gap-2">
       <i class="fa-solid fa-heart text-secondary text-2xl"></i>
-      <span class="text-2xl font-bold text-primary">NouMatch</span>
+      <span class="text-2xl font-bold text-primary">NM Home</span>
     </a>
 
-    <nav class="hidden md:flex gap-6 items-center relative" id="nav-links">
-      <a href="{% url 'nmdashboard:dashboard' %}"><i class="fa-solid fa-house text-xl cursor-pointer"></i></a>
-      <div class="relative">
-        <button type="button"><i class="fa-solid fa-envelope text-xl cursor-pointer" id="messagesBtn"></i></button>
-        <div id="messagesDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg overflow-hidden z-50">
-          <div class="p-4 border-b font-bold">Messages</div>
-          <ul class="divide-y">
-            <li class="p-3 cursor-pointer bg-gray-100 font-semibold">Nouvel utilisateur veut matcher ✅</li>
-            <li class="p-3 cursor-pointer">Salut, comment ça va ?</li>
-            <li class="p-3 cursor-pointer bg-gray-100 font-semibold">Invitation à discuter 💬</li>
-          </ul>
-        </div>
-      </div>
-        <a href="{% url 'nmdashboard:my_profile' %}">
-            {% if request.user.profile_photo %}
-                <img 
-                    src="{{ request.user.profile_photo.url }}" 
-                    alt="My profile"
-                    class="w-8 h-8 rounded-full object-cover cursor-pointer"
-                >
-            {% else %}
-                <i class="fa-solid fa-user text-xl cursor-pointer"></i>
+    <!-- DESKTOP MENU -->
+    <nav class="hidden md:flex gap-6 items-center">
+
+      <a href="{% url 'nmdashboard:dashboard' %}">
+        <i class="fa-solid fa-house text-xl cursor-pointer"></i>
+      </a>
+
+    <!-- Messages -->
+    <div class="relative">
+        <button type="button" id="messagesBtn" class="relative">
+            <i class="fa-solid fa-envelope text-xl cursor-pointer"></i>
+            {% if unread_messages_count > 0 %}
+            <span class="absolute top-0 right-0 block w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
             {% endif %}
-        </a>
-      <form method="post" action="{% url 'users:logout' %}" class="inline">
+        </button>
+
+        <div id="messagesDropdown"
+            class="hidden absolute right-0 mt-2 w-72 bg-white shadow-lg rounded-lg overflow-hidden z-50">
+            <div class="p-4 border-b font-bold">Messages</div>
+            <ul class="divide-y">
+                {% for msg in latest_messages %}
+                <li>
+                    <a href="{% url 'nmdashboard:chat' msg.sender.id %}" 
+                    class="block p-3 cursor-pointer {% if not msg.is_read %}bg-gray-100 font-semibold{% endif %} hover:bg-gray-200">
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold text-gray-700">{{ msg.sender.first_name|default:msg.sender.username }}</span>
+                            <span class="text-xs text-gray-400">{{ msg.timestamp|date:"H:i" }}</span>
+                        </div>
+                        <div class="text-gray-600 truncate">{{ msg.content|truncatechars:30 }}</div>
+                    </a>
+                </li>
+                {% empty %}
+                <li class="p-3 cursor-pointer text-gray-400">Aucun message pour le moment</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+
+
+
+
+      <!-- Profile -->
+      <a href="{% url 'nmdashboard:my_profile' %}">
+        {% if request.user.profile_photo %}
+          <img src="{{ request.user.profile_photo.url }}"
+               class="w-8 h-8 rounded-full object-cover cursor-pointer">
+        {% else %}
+          <i class="fa-solid fa-user text-xl cursor-pointer"></i>
+        {% endif %}
+      </a>
+
+      <!-- Logout -->
+      <form method="post" action="{% url 'users:logout' %}">
         {% csrf_token %}
         <button type="submit">
-          <i class="fa-solid fa-right-from-bracket text-xl bg-secondary text-white p-2 rounded-full cursor-pointer"></i>
+          <i class="fa-solid fa-right-from-bracket text-xl bg-secondary text-white p-2 rounded-full"></i>
         </button>
       </form>
     </nav>
 
-    <div class="md:hidden flex items-center">
-      <button id="hamburger" class="text-2xl text-gray-700"><i class="fa-solid fa-bars"></i></button>
+    <!-- MOBILE HAMBURGER -->
+    <button id="hamburger" class="md:hidden text-2xl text-gray-700">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+  </div>
+
+  <!-- MOBILE DROPDOWN MENU -->
+  <div id="mobileMenu"
+       class="hidden md:hidden bg-white border-t shadow-lg">
+
+    <div class="flex flex-col p-6 gap-6">
+
+      <a href="{% url 'nmdashboard:dashboard' %}" class="flex items-center gap-3 text-lg">
+        <i class="fa-solid fa-house"></i> Accueil
+      </a>
+
+      <button id="mobileMessagesBtn"
+              class="flex items-center gap-3 text-lg text-left">
+        <i class="fa-solid fa-envelope"></i> Messages
+      </button>
+
+      <a href="{% url 'nmdashboard:my_profile' %}" class="flex items-center gap-3 text-lg">
+        <i class="fa-solid fa-user"></i> Mon Profil
+      </a>
+
+      <form method="post" action="{% url 'users:logout' %}">
+        {% csrf_token %}
+        <button type="submit"
+                class="flex items-center gap-3 text-lg text-secondary font-semibold">
+          <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+        </button>
+      </form>
+
     </div>
   </div>
 </header>
 
-<script>
-// Messages dropdown
-const messagesBtn = document.getElementById('messagesBtn');
-const messagesDropdown = document.getElementById('messagesDropdown');
-messagesBtn.addEventListener('click', () => messagesDropdown.classList.toggle('hidden'));
-document.addEventListener('click', (e) => {
-  if (!messagesBtn.contains(e.target) && !messagesDropdown.contains(e.target)) messagesDropdown.classList.add('hidden');
-});
 
-// Hamburger toggle
-const hamburger = document.getElementById("hamburger");
-const navLinks = document.getElementById("nav-links");
-hamburger.addEventListener("click", () => navLinks.classList.toggle("hidden"));
+<script>
+  const hamburger = document.getElementById("hamburger");
+  const mobileMenu = document.getElementById("mobileMenu");
+
+  hamburger.addEventListener("click", () => {
+    mobileMenu.classList.toggle("hidden");
+  });
+
+  // Desktop messages dropdown
+  const messagesBtn = document.getElementById('messagesBtn');
+  const messagesDropdown = document.getElementById('messagesDropdown');
+
+  messagesBtn.addEventListener('click', () => {
+    messagesDropdown.classList.toggle('hidden');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!messagesBtn.contains(e.target) && 
+        !messagesDropdown.contains(e.target)) {
+      messagesDropdown.classList.add('hidden');
+    }
+  });
 </script>
+
 
 {% block content %}{% endblock content %}
 

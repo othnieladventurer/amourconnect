@@ -89,21 +89,43 @@
 </div>
 
 <!-- MATCH MODAL -->
+<!-- MATCH MODAL -->
 <div id="match-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
   <div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center relative">
     <button onclick="closeMatchModal()" class="absolute top-3 right-4 text-2xl">&times;</button>
     <h2 class="text-2xl font-bold text-secondary mb-4">✨ C’est un match !</h2>
-    <img id="match-img" class="w-28 h-28 mx-auto rounded-full mb-4">
+    <img id="match-img"
+     class="w-28 h-28 mx-auto rounded-full mb-4 object-cover object-center"
+     src="">
     <p id="match-name" class="font-bold text-lg mb-6"></p>
     <div class="flex flex-col gap-3">
-      <!-- Voir Profil button redirects to profile page -->
-      <a id="match-view-link" class="bg-primary text-white py-3 rounded-full transition-colors duration-200 hover:bg-purple-700" href="#">👤 Voir le profil</a>
-      <button class="bg-secondary text-white py-3 rounded-full transition-colors duration-200 hover:bg-pink-700">💬 Envoyer un message</button>
-      <button class="bg-gray-200 py-3 rounded-full transition-colors duration-200 hover:bg-gray-400">❌ Se désapparier</button>
-      <button class="bg-red-500 text-white py-3 rounded-full transition-colors duration-200 hover:bg-red-700">🚫 Bloquer</button>
+      
+      <!-- Voir Profil -->
+      <a id="match-view-link"
+         class="bg-primary text-white py-3 rounded-full transition-colors duration-200 hover:bg-purple-700"
+         href="#">
+         👤 Voir le profil
+      </a>
+
+      <!-- ✅ UPDATED: Envoyer message as real link -->
+      <a id="match-message-link"
+         class="bg-secondary text-white py-3 rounded-full transition-colors duration-200 hover:bg-pink-700"
+         href="#">
+         💬 Envoyer un message
+      </a>
+
+      <button class="bg-gray-200 py-3 rounded-full transition-colors duration-200 hover:bg-gray-400">
+        ❌ Se désapparier
+      </button>
+
+      <button class="bg-red-500 text-white py-3 rounded-full transition-colors duration-200 hover:bg-red-700">
+        🚫 Bloquer
+      </button>
+
     </div>
   </div>
 </div>
+
 
 <script>
 const profiles = JSON.parse(document.getElementById("profiles-data").textContent || "[]");
@@ -112,6 +134,7 @@ const likes_received = JSON.parse(document.getElementById("likes-data").textCont
 let currentProfile = 0;
 let currentLikeIndex = null;
 let currentLikeId = null;
+let currentMatchUser = null; // ✅ Track user in match modal
 
 const card = document.getElementById("profile-card");
 const extra = document.getElementById("extra-info");
@@ -294,17 +317,74 @@ function showProfileById(userId) {
    MATCH MODAL
 ================================ */
 function showMatchModal(user) {
+  currentMatchUser = user; // ✅ Track current modal user
+
   document.getElementById("match-name").innerText = user.username;
   document.getElementById("match-img").src = user.profile_photo || "/static/images/default-profile.png";
 
-  // Update link to actual user id
-  const link = document.getElementById("match-view-link");
-  link.href = "{% url 'nmdashboard:voir_profil' 0 %}".replace("/0/", `/${user.id}/`);
+  // Voir profil link
+  const viewLink = document.getElementById("match-view-link");
+  viewLink.href = "{% url 'nmdashboard:voir_profil' 0 %}".replace("/0/", `/${user.id}/`);
+
+  // Message link
+  const messageLink = document.getElementById("match-message-link");
+  messageLink.href = "{% url 'nmdashboard:chat' 0 %}".replace("/0/", `/${user.id}/`);
 
   document.getElementById("match-modal").classList.remove("hidden");
 }
 
-function closeMatchModal() { document.getElementById("match-modal").classList.add("hidden"); }
+// ✅ Close modal
+function closeMatchModal() { 
+  document.getElementById("match-modal").classList.add("hidden"); 
+  currentMatchUser = null;
+}
+
+/* ===============================
+   UNMATCH & BLOCK
+================================ */
+document.getElementById("match-modal").querySelector(".bg-gray-200").onclick = () => {
+  if (!currentMatchUser) return;
+  fetch("{% url 'nmdashboard:unmatch_user' %}", {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": "{{ csrf_token }}",
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `user_id=${currentMatchUser.id}`,
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === "success") {
+      alert("Match removed!");
+      document.querySelector(`#matches-list div[data-user-id="${currentMatchUser.id}"]`)?.remove();
+      closeMatchModal();
+    } else {
+      alert(data.message);
+    }
+  });
+};
+
+document.getElementById("match-modal").querySelector(".bg-red-500").onclick = () => {
+  if (!currentMatchUser) return;
+  fetch("{% url 'nmdashboard:block_user' %}", {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": "{{ csrf_token }}",
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `user_id=${currentMatchUser.id}`,
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === "success") {
+      alert("User blocked!");
+      document.querySelector(`#matches-list div[data-user-id="${currentMatchUser.id}"]`)?.remove();
+      closeMatchModal();
+    } else {
+      alert(data.message);
+    }
+  });
+};
 
 /* ===============================
    INIT

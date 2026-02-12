@@ -3,14 +3,14 @@
 {% block content %}
 
 <main class="flex-1 pt-28 px-4 mb-7">
-  <div class="max-w-3xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
+  <div class="max-w-5xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row">
 
     <!-- PROFILE PHOTO -->
-    <div class="relative">
+    <div class="lg:w-1/2 relative flex-shrink-0">
       {% if profile_suser.profile_photo %}
-        <img src="{{ profile_suser.profile_photo.url }}" class="w-full h-96 object-cover">
+        <img src="{{ profile_suser.profile_photo.url }}" class="w-full h-full object-cover">
       {% else %}
-        <img src="/static/images/default-profile.png" class="w-full h-96 object-cover">
+        <img src="/static/images/default-profile.png" class="w-full h-full object-cover">
       {% endif %}
       <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 via-black/30 to-transparent p-6">
         <h1 class="text-3xl font-bold text-white">{{ profile_suser.username }}</h1>
@@ -21,7 +21,7 @@
     </div>
 
     <!-- INFO CARDS -->
-    <div class="p-6 space-y-4">
+    <div class="lg:w-1/2 p-6 space-y-4">
       <div class="grid grid-cols-2 gap-4 text-gray-700">
         <div class="bg-pink-50 rounded-xl p-4 shadow-sm">
             <p class="text-sm text-gray-500">Âge</p>
@@ -71,19 +71,45 @@
       </div>
 
       <!-- ACTION BUTTONS -->
-      <div class="flex flex-col sm:flex-row gap-4 mt-6">
-        <a href="" 
-           class="flex-1 bg-pink-600 text-white py-3 rounded-full text-center font-semibold hover:bg-pink-700 transition-colors shadow-md">
-           💬 Envoyer un message
+    <div class="grid grid-cols-2 gap-5 mt-8">
+
+        <a href=""
+        class="flex items-center justify-center gap-2 h-14 
+                bg-pink-600 text-white rounded-2xl font-semibold 
+                hover:bg-pink-700 hover:shadow-lg 
+                transition-all duration-200 shadow-md">
+            💬 <span>Envoyer un message</span>
         </a>
-        <button class="flex-1 bg-gray-200 py-3 rounded-full text-center font-semibold hover:bg-gray-300 shadow-md">❌ Se désapparier</button>
-        <button class="flex-1 bg-red-500 text-white py-3 rounded-full text-center font-semibold hover:bg-red-600 shadow-md">💔 Unlike</button>
-        <button class="flex-1 bg-black text-white py-3 rounded-full text-center font-semibold hover:bg-gray-900 shadow-md">🚫 Bloquer</button>
-      </div>
+
+        <button
+            class="flex items-center justify-center gap-2 h-14 
+                bg-gray-200 text-gray-800 rounded-2xl font-semibold 
+                hover:bg-gray-300 hover:shadow-lg 
+                transition-all duration-200 shadow-md">
+            ❌ <span>Se désapparier</span>
+        </button>
+
+        <button
+            class="flex items-center justify-center gap-2 h-14 
+                bg-red-500 text-white rounded-2xl font-semibold 
+                hover:bg-red-600 hover:shadow-lg 
+                transition-all duration-200 shadow-md">
+            💔 <span>Unlike</span>
+        </button>
+
+        <button
+            class="flex items-center justify-center gap-2 h-14 
+                bg-black text-white rounded-2xl font-semibold 
+                hover:bg-gray-900 hover:shadow-lg 
+                transition-all duration-200 shadow-md">
+            🚫 <span>Bloquer</span>
+        </button>
+
     </div>
 
-    <!-- OPTIONAL: FUN TAGS -->
-    <div class="p-6 flex flex-wrap gap-2">
+
+      <!-- OPTIONAL: FUN TAGS -->
+      <div class="p-6 flex flex-wrap gap-2">
         {% for hobby in hobbies_list %}
             <span class="bg-pink-200 text-pink-800 text-sm px-3 py-1 rounded-full">{{ hobby }}</span>
         {% endfor %}
@@ -91,9 +117,9 @@
         {% for passion in passions_list %}
             <span class="bg-blue-200 text-blue-800 text-sm px-3 py-1 rounded-full">{{ passion }}</span>
         {% endfor %}
+      </div>
+
     </div>
-
-
   </div>
 </main>
 

@@ -8,27 +8,33 @@ from django.urls import reverse_lazy
 
 
 def register(request):
+
+    # Prevent authenticated users from accessing register
+    if request.user.is_authenticated:
+        return redirect("nmdashboard:dashboard")
+
     if request.method == "POST":
         form = UserRegisterForm(request.POST, request.FILES)
-        files = request.FILES.getlist('additional_images')  # for multiple images
+        files = request.FILES.getlist('additional_images')
+
         if form.is_valid():
             user = form.save()
             login(request, user)
 
-            # Save additional pictures
             for f in files:
                 UserProfilePicture.objects.create(user=user, image=f)
 
             return redirect("nmdashboard:dashboard")
     else:
         form = UserRegisterForm()
-    return render(request, "users/register.html", {"form": form})
 
+    return render(request, "users/register.html", {"form": form})
 
 
 
 class CustomLoginView(LoginView):
     template_name = "users/login.html"
+    redirect_authenticated_user = True  # 🔥 important
 
     def get_success_url(self):
         return reverse_lazy("nmdashboard:dashboard")

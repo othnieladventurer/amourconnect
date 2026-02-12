@@ -6,11 +6,25 @@ from .models import User, UserProfilePicture
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
 
+    birth_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date"})
+    )
+
     class Meta:
         model = User
-        fields = ["email", "username", "password1", "password2", "gender", "interested_in", "location", "bio", "profile_photo"]
-
-
+        fields = [
+            "email",
+            "username",
+            "password1",
+            "password2",
+            "birth_date",     
+            "gender",
+            "interested_in",
+            "location",
+            "bio",
+            "profile_photo",
+        ]
 
 
 

@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from users.models import User, UserProfilePicture
 from .forms import UserProfileForm, UserProfilePictureForm
+from django.http import HttpResponseForbidden
 from datetime import datetime
 from .models import Like, Match
 from django.db.models import Q
@@ -9,6 +10,7 @@ from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 import json
 from datetime import date
+from .models import Message
 
 
 
@@ -196,6 +198,98 @@ def voir_profil(request, user_id):
 
 
 
+
+
+
+@login_required
+def chat_view(request, user_id):
+    current_user = request.user
+    other_user = get_object_or_404(User, id=user_id)
+
+    # Prevent messaging yourself
+    if current_user == other_user:
+        return HttpResponseForbidden("Vous ne pouvez pas vous envoyer un message à vous-même.")
+
+    # Check if users are matched
+    is_matched = Match.objects.filter(
+        Q(user1=current_user, user2=other_user) |
+        Q(user1=other_user, user2=current_user)
+    ).exists()
+
+    if not is_matched:
+        return HttpResponseForbidden("Vous ne pouvez envoyer des messages qu'aux utilisateurs avec lesquels vous avez un match.")
+
+    # Fetch all messages between these two users
+    messages = Message.objects.filter(
+        Q(sender=current_user, receiver=other_user) |
+        Q(sender=other_user, receiver=current_user)
+    ).order_by("timestamp")
+
+    # Mark unread messages as read
+    Message.objects.filter(sender=other_user, receiver=current_user, is_read=False).update(is_read=True)
+
+    # Handle sending a new message
+    if request.method == "POST":
+        content = request.POST.get("content", "").strip()
+        if content:
+            Message.objects.create(sender=current_user, receiver=other_user, content=content)
+        return redirect("nmdashboard:chat", user_id=other_user.id)
+
+    context = {
+        "other_user": other_user,
+        "messages": messages,
+    }
+
+    return render(request, "nmdashboard/chat.html", context)
+
+
+
+
+
+
+
+
+
+@login_required
+def unmatch_user(request):
+    if request.method == "POST":
+        user_id = request.POST.get("user_id")
+        other_user = get_object_or_404(User, id=user_id)
+        
+        match = Match.objects.filter(
+            (Q(user1=request.user) & Q(user2=other_user)) |
+            (Q(user1=other_user) & Q(user2=request.user))
+        ).first()
+        
+        if match:
+            match.delete()
+            return JsonResponse({"status": "success"})
+        return JsonResponse({"status": "error", "message": "No match found."})
+    return JsonResponse({"status": "error", "message": "Invalid request."})
+
+
+@login_required
+def block_user(request):
+    if request.method == "POST":
+        user_id = request.POST.get("user_id")
+        other_user = get_object_or_404(User, id=user_id)
+
+        # Unmatch if matched
+        Match.objects.filter(
+            (Q(user1=request.user) & Q(user2=other_user)) |
+            (Q(user1=other_user) & Q(user2=request.user))
+        ).delete()
+
+        # Block
+        blocked, created = BlockedUser.objects.get_or_create(
+            blocker=request.user,
+            blocked=other_user
+        )
+        if created:
+            return JsonResponse({"status": "success"})
+        else:
+            return JsonResponse({"status": "error", "message": "Already blocked."})
+    return JsonResponse({"status": "error", "message": "Invalid request."})
 
 
 
