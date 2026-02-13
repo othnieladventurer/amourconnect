@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 import json
 from datetime import date
-from .models import Message
+from .models import *
 
 
 

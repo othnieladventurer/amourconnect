@@ -14,45 +14,47 @@
 <main class="flex-1 pt-28 px-4">
   <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    <!-- LEFT -->
-    <div class="hidden lg:flex flex-col gap-6">
+    <!-- LEFT COLUMN (Likes + Matches) -->
+    <div class="flex flex-col gap-6 order-3 lg:order-none">
+
       <!-- LIKES -->
       <div class="bg-white rounded-2xl shadow p-4">
         <h3 class="font-bold text-center mb-4">Ils vous aiment</h3>
-        <div id="likes-container" class="flex justify-center gap-3"></div>
+        <div id="likes-container" class="flex justify-center gap-3 flex-wrap"></div>
       </div>
 
-    <!-- MATCHES -->
-
-    <div class="bg-white rounded-2xl shadow p-4">
-      <h3 class="font-bold text-center mb-4">Matchs</h3>
-      <div id="matches-list" class="space-y-3">
-        {% if matches %}
-          {% for match in matches %}
-            <div class="flex items-center gap-3 cursor-pointer {% if not is_paid and forloop.counter > 2 %}blur-sm{% endif %}" 
-                 data-user-id="{{ match.other_user.id }}" 
-                 onclick="openMatchModal({{ forloop.counter0 }})">
-              <img src="{{ match.other_user.profile_photo }}" class="w-12 h-12 rounded-full">
-              <span>{{ match.other_user.username }}</span>
-            </div>
-          {% endfor %}
-        {% else %}
-          <p id="no-matches-msg" class="text-center text-gray-500">Pas encore de matchs.</p>
-        {% endif %}
+      <!-- MATCHES -->
+      <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-bold text-center mb-4">Matchs</h3>
+        <div id="matches-list" class="space-y-3">
+          {% if matches %}
+            {% for match in matches %}
+              <div class="flex items-center gap-3 cursor-pointer {% if not is_paid and forloop.counter > 2 %}blur-sm{% endif %}" 
+                   data-user-id="{{ match.other_user.id }}" 
+                   onclick="openMatchModal({{ forloop.counter0 }})">
+                <img src="{{ match.other_user.profile_photo }}" class="w-12 h-12 rounded-full">
+                <span>{{ match.other_user.username }}</span>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p id="no-matches-msg" class="text-center text-gray-500">Pas encore de matchs.</p>
+          {% endif %}
+        </div>
       </div>
-    </div>
 
     </div>
 
-    <!-- CENTER CARD -->
-    <div class="flex justify-center mb-5">
+
+    <!-- CENTER PROFILE CARD -->
+    <div class="flex justify-center mb-5 order-1 lg:order-none">
       <div id="profile-card" class="bg-white rounded-2xl shadow-xl overflow-hidden w-full max-w-md lg:max-w-xl">
         <!-- Populated by JS -->
       </div>
     </div>
 
-    <!-- RIGHT -->
-    <div class="hidden lg:flex flex-col gap-6">
+
+    <!-- RIGHT COLUMN (Infos du Profil) -->
+    <div class="flex flex-col gap-6 order-2 lg:order-none">
       <div class="bg-white rounded-2xl shadow p-4">
         <h3 class="font-bold text-center mb-4">Infos du Profil</h3>
         <div id="extra-info" class="space-y-2 text-sm">
@@ -68,6 +70,8 @@
 
   </div>
 </main>
+
+
 
 <!-- LIKE MODAL -->
 <div id="like-modal"
