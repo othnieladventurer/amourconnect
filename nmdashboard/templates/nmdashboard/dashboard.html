@@ -404,21 +404,41 @@ document.getElementById("match-modal").querySelector(".bg-gray-200").onclick = (
     if (data.status === "success") {
       const unmatchedUserId = currentMatchUser.id;
 
+      // 1️⃣ Remove from matches list
       document.querySelector(`#matches-list div[data-user-id="${unmatchedUserId}"]`)?.remove();
       rebuildMatchesData();
 
+      // 2️⃣ Reset matched flag in likes
       const likeObj = likes_received.find(l => l.from_user.id == unmatchedUserId);
       if (likeObj) {
         likeObj.is_matched = false;
 
-        // 🔥 Re-render Like modal buttons immediately if open
+        // 🔥 Re-render Like modal buttons immediately if modal is open
         if (!document.getElementById("like-modal").classList.contains("hidden") && currentLikeId == unmatchedUserId) {
           openLikeModal(currentLikeIndex);
         }
       }
 
+      // 3️⃣ Re-add the user to the main card stack if not already in profiles
+      if (!profiles.some(p => p.id == unmatchedUserId)) {
+        profiles.splice(currentProfile + 1, 0, {
+          id: unmatchedUserId,
+          username: currentMatchUser.username,
+          profile_photo: currentMatchUser.profile_photo,
+          bio: currentMatchUser.bio || "",
+          career: currentMatchUser.career || "",
+          passions: currentMatchUser.passions || "",
+          hobbies: currentMatchUser.hobbies || ""
+        });
+      }
+
+      // 4️⃣ Close modal
       closeMatchModal();
+
+      // 5️⃣ Refresh main card to include the unmatched user
       showProfile(currentProfile);
+
+      // 6️⃣ Refresh likes sidebar
       populateLikes();
     } else {
       alert(data.message);
