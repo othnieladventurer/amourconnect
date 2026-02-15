@@ -119,7 +119,7 @@
       </a>
 
       <button class="bg-gray-200 py-3 rounded-full transition-colors duration-200 hover:bg-gray-400">
-        ❌ Se désapparier
+        ❌ Unmatch
       </button>
 
       <button class="bg-red-500 text-white py-3 rounded-full transition-colors duration-200 hover:bg-red-700">
@@ -138,7 +138,7 @@ const likes_received = JSON.parse(document.getElementById("likes-data").textCont
 let currentProfile = 0;
 let currentLikeIndex = null;
 let currentLikeId = null;
-let currentMatchUser = null; // ✅ Track user in match modal
+let currentMatchUser = null;
 
 const card = document.getElementById("profile-card");
 const extra = document.getElementById("extra-info");
@@ -170,6 +170,12 @@ function populateLikes() {
 ================================ */
 function showProfile(index) {
   if (!card || !extra) return;
+
+  while (profiles[index] && isAlreadyMatched(profiles[index].id)) {
+    index++;
+  }
+  currentProfile = index;
+
   if (!profiles.length || !profiles[index]) {
     card.innerHTML = `<div class="p-10 text-center"><h2 class="text-2xl font-bold mb-2">No profile available for match yet</h2><p class="text-gray-500">Come back later</p></div>`;
     extra.innerHTML = `<p class="italic text-gray-400">Your possible match hobbies will be shared here</p>`;
@@ -214,27 +220,11 @@ function showProfile(index) {
 }
 
 /* ===============================
-   SEND LIKE OR PASS (with Match popup)
+   HELPER: CHECK IF ALREADY MATCHED
 ================================ */
-function sendAction(action, userId) {
-  fetch("{% url 'nmdashboard:like_or_pass' %}", {
-    method: "POST",
-    headers: {
-      "X-CSRFToken": "{{ csrf_token }}",
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: `action=${action}&user_id=${userId}`,
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.is_match && data.matched_user) {
-      showMatchModal(data.matched_user);
-      addToMatchesList(data.matched_user);
-    }
-    nextProfile();
-    populateLikes();
-  })
-  .catch(() => nextProfile());
+function isAlreadyMatched(userId) {
+  const matchesList = Array.from(document.querySelectorAll('#matches-list > div'));
+  return matchesList.some(div => div.dataset.userId == userId);
 }
 
 /* ===============================
@@ -249,6 +239,36 @@ function nextProfile() {
     showProfile(currentProfile);
     card.classList.add("slide-in");
   }, { once: true });
+}
+
+/* ===============================
+   SEND LIKE OR PASS
+================================ */
+function sendAction(action, userId) {
+  fetch("{% url 'nmdashboard:like_or_pass' %}", {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": "{{ csrf_token }}",
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `action=${action}&user_id=${userId}`,
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.is_match && data.matched_user) {
+      // Update local like state
+      const likeObj = likes_received.find(l => l.from_user.id == data.matched_user.id);
+      if (likeObj) likeObj.is_matched = true;
+
+      closeLikeModal();
+      setTimeout(() => showMatchModal(data.matched_user), 0);
+      addToMatchesList(data.matched_user);
+    }
+
+    nextProfile();
+    populateLikes();
+  })
+  .catch(() => nextProfile());
 }
 
 /* ===============================
@@ -268,10 +288,10 @@ function openLikeModal(index) {
   const likeButtonsContainer = document.getElementById("like-buttons");
   likeButtonsContainer.innerHTML = "";
 
-  const likedUserIds = profiles.map(p => p.id);
-  const alreadyLikedEachOther = likedUserIds.includes(like.from_user.id);
+  // Use DOM match state
+  const isMatch = isAlreadyMatched(like.from_user.id);
 
-  if (alreadyLikedEachOther) {
+  if (isMatch) {
     const viewBtn = document.createElement("a");
     viewBtn.className = "bg-blue-500 text-white px-6 py-3 rounded-full";
     viewBtn.innerText = "Voir Profil";
@@ -281,12 +301,18 @@ function openLikeModal(index) {
     const passBtn = document.createElement("button");
     passBtn.className = "bg-red-500 text-white px-6 py-3 rounded-full";
     passBtn.innerHTML = '<i class="fa-solid fa-x"></i>';
-    passBtn.onclick = () => sendAction('pass', currentLikeId);
+    passBtn.onclick = () => {
+      closeLikeModal();
+      sendAction('pass', currentLikeId);
+    };
 
     const heartBtn = document.createElement("button");
     heartBtn.className = "bg-green-500 text-white px-6 py-3 rounded-full";
     heartBtn.innerHTML = '<i class="fa-solid fa-heart"></i>';
-    heartBtn.onclick = () => sendAction('like', currentLikeId);
+    heartBtn.onclick = () => {
+      closeLikeModal();
+      sendAction('like', currentLikeId);
+    };
 
     const viewBtn = document.createElement("a");
     viewBtn.className = "bg-blue-500 text-white px-6 py-3 rounded-full";
@@ -301,7 +327,9 @@ function openLikeModal(index) {
   document.getElementById("like-modal").classList.remove("hidden");
 }
 
-function closeLikeModal() { document.getElementById("like-modal").classList.add("hidden"); }
+function closeLikeModal() {
+  document.getElementById("like-modal").classList.add("hidden");
+}
 
 function viewLikeProfile(index) {
   if (index === null) return;
@@ -318,36 +346,51 @@ function showProfileById(userId) {
 }
 
 /* ===============================
-   MATCH MODAL
+   SHOW MATCH MODAL
 ================================ */
 function showMatchModal(user) {
-  currentMatchUser = user; // ✅ Track current modal user
+  if (!user) return;
 
-  document.getElementById("match-name").innerText = user.username;
-  document.getElementById("match-img").src = user.profile_photo || "/static/images/default-profile.png";
+  currentMatchUser = user;
 
-  // Voir profil link
-  const viewLink = document.getElementById("match-view-link");
-  viewLink.href = "{% url 'nmdashboard:voir_profil' 0 %}".replace("/0/", `/${user.id}/`);
+  document.getElementById("match-img").src =
+    user.profile_photo || "/static/images/default-profile.png";
 
-  // Message link
-  const messageLink = document.getElementById("match-message-link");
-  messageLink.href = "{% url 'nmdashboard:chat' 0 %}".replace("/0/", `/${user.id}/`);
+  document.getElementById("match-name").innerText =
+    user.username;
+
+  document.getElementById("match-view-link").href =
+    "{% url 'nmdashboard:voir_profil' 0 %}".replace("/0/", `/${user.id}/`);
+
+  document.getElementById("match-message-link").href =
+    "{% url 'nmdashboard:chat' 0 %}".replace("/0/", `/${user.id}/`);
 
   document.getElementById("match-modal").classList.remove("hidden");
 }
 
-// ✅ Close modal
-function closeMatchModal() { 
-  document.getElementById("match-modal").classList.add("hidden"); 
+function closeMatchModal() {
+  document.getElementById("match-modal").classList.add("hidden");
   currentMatchUser = null;
 }
 
 /* ===============================
    UNMATCH & BLOCK
 ================================ */
+function rebuildMatchesData() {
+  matchesData.length = 0;
+  document.querySelectorAll('#matches-list > div').forEach(div => {
+    matchesData.push({
+      username: div.querySelector('span').innerText,
+      profile_photo: div.querySelector('img').src,
+      id: div.dataset.userId
+    });
+  });
+}
+
+// UNMATCH
 document.getElementById("match-modal").querySelector(".bg-gray-200").onclick = () => {
   if (!currentMatchUser) return;
+
   fetch("{% url 'nmdashboard:unmatch_user' %}", {
     method: "POST",
     headers: {
@@ -359,17 +402,34 @@ document.getElementById("match-modal").querySelector(".bg-gray-200").onclick = (
   .then(res => res.json())
   .then(data => {
     if (data.status === "success") {
-      alert("Match removed!");
-      document.querySelector(`#matches-list div[data-user-id="${currentMatchUser.id}"]`)?.remove();
+      const unmatchedUserId = currentMatchUser.id;
+
+      document.querySelector(`#matches-list div[data-user-id="${unmatchedUserId}"]`)?.remove();
+      rebuildMatchesData();
+
+      const likeObj = likes_received.find(l => l.from_user.id == unmatchedUserId);
+      if (likeObj) {
+        likeObj.is_matched = false;
+
+        // 🔥 Re-render Like modal buttons immediately if open
+        if (!document.getElementById("like-modal").classList.contains("hidden") && currentLikeId == unmatchedUserId) {
+          openLikeModal(currentLikeIndex);
+        }
+      }
+
       closeMatchModal();
+      showProfile(currentProfile);
+      populateLikes();
     } else {
       alert(data.message);
     }
   });
 };
 
+// BLOCK
 document.getElementById("match-modal").querySelector(".bg-red-500").onclick = () => {
   if (!currentMatchUser) return;
+
   fetch("{% url 'nmdashboard:block_user' %}", {
     method: "POST",
     headers: {
@@ -381,9 +441,11 @@ document.getElementById("match-modal").querySelector(".bg-red-500").onclick = ()
   .then(res => res.json())
   .then(data => {
     if (data.status === "success") {
-      alert("User blocked!");
       document.querySelector(`#matches-list div[data-user-id="${currentMatchUser.id}"]`)?.remove();
+      rebuildMatchesData();
       closeMatchModal();
+      alert("User blocked!");
+      showProfile(currentProfile);
     } else {
       alert(data.message);
     }
@@ -398,7 +460,7 @@ document.addEventListener("DOMContentLoaded", () => {
   populateLikes();
 });
 
-// Add match list items dynamically
+// ADD MATCH LIST ITEM
 function addToMatchesList(user) {
   const matchesList = document.getElementById("matches-list");
   if (!matchesList) return;
@@ -424,7 +486,7 @@ function addToMatchesList(user) {
   matchesList.appendChild(div);
 }
 
-// Prepare matches data from DOM including user id
+// INITIALIZE MATCH DATA
 const matchesData = Array.from(document.querySelectorAll('#matches-list > div')).map(div => {
   return {
     username: div.querySelector('span').innerText,
@@ -437,7 +499,7 @@ function openMatchModal(index) {
   if (!matchesData || !matchesData[index]) return;
   showMatchModal(matchesData[index]);
 }
-
 </script>
+
 
 {% endblock content %}

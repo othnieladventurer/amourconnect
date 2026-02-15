@@ -11,6 +11,8 @@ from django.http import JsonResponse
 import json
 from datetime import date
 from .models import *
+from django.db.models.functions import Random
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 
@@ -22,16 +24,26 @@ def dashboard(request):
     # -----------------------------
     # Likes RECEIVED
     # -----------------------------
-    likes_received = Like.objects.filter(to_user=user).select_related('from_user').distinct()
+    likes_received = (
+        Like.objects
+        .filter(to_user=user)
+        .select_related("from_user")
+        .distinct()
+    )
+
     likes_received_json = [
         {
             "id": like.id,
             "from_user": {
                 "id": like.from_user.id,
                 "username": like.from_user.username,
-                "profile_photo": like.from_user.profile_photo.url if like.from_user.profile_photo else "/static/images/default-profile.png",
+                "profile_photo": (
+                    like.from_user.profile_photo.url
+                    if like.from_user.profile_photo
+                    else "/static/images/default-profile.png"
+                ),
                 "bio": like.from_user.bio or "",
-            }
+            },
         }
         for like in likes_received
     ]
@@ -39,18 +51,30 @@ def dashboard(request):
     # -----------------------------
     # Matches involving current user
     # -----------------------------
-    user_matches = Match.objects.filter(Q(user1=user) | Q(user2=user)).distinct()
+    user_matches = (
+        Match.objects
+        .filter(Q(user1=user) | Q(user2=user))
+        .select_related("user1", "user2")
+        .distinct()
+    )
+
     matched_user_ids = []
     matches = []
 
     for match in user_matches:
         other_user = match.user2 if match.user1 == user else match.user1
+
         matched_user_ids.append(other_user.id)
+
         matches.append({
             "other_user": {
                 "id": other_user.id,
                 "username": other_user.username,
-                "profile_photo": other_user.profile_photo.url if other_user.profile_photo else "/static/images/default-profile.png",
+                "profile_photo": (
+                    other_user.profile_photo.url
+                    if other_user.profile_photo
+                    else "/static/images/default-profile.png"
+                ),
             },
             "created_at": match.created_at,
         })
@@ -58,34 +82,49 @@ def dashboard(request):
     # -----------------------------
     # Users already liked
     # -----------------------------
-    liked_user_ids = Like.objects.filter(from_user=user).values_list("to_user_id", flat=True)
-
-    # -----------------------------
-    # Profiles to show
-    # -----------------------------
-    profiles = User.objects.filter(
-        is_active=True
-    ).exclude(
-        id=user.id
-    ).exclude(
-        id__in=matched_user_ids
-    ).exclude(
-        id__in=liked_user_ids
+    liked_user_ids = (
+        Like.objects
+        .filter(from_user=user)
+        .values_list("to_user_id", flat=True)
     )
 
+    # -----------------------------
+    # Profiles to show (RANDOMIZED)
+    # -----------------------------
+    profiles = (
+        User.objects
+        .filter(is_active=True)
+        .exclude(id=user.id)
+        .exclude(id__in=matched_user_ids)
+        .exclude(id__in=liked_user_ids)
+    )
+
+    # Gender filtering
     if user.interested_in != "everyone":
         profiles = profiles.filter(gender=user.interested_in)
 
-    profiles = profiles.filter(Q(interested_in=user.gender) | Q(interested_in="everyone"))
+    profiles = profiles.filter(
+        Q(interested_in=user.gender) | Q(interested_in="everyone")
+    )
+
+    # 🔥 RANDOM ORDER EVERY PAGE LOAD
+    profiles = profiles.order_by(Random())
 
     profiles_json = [
         {
             "id": p.id,
             "username": p.username,
             "bio": p.bio or "",
-            "birth_date": p.birth_date.isoformat() if p.birth_date else None,
+            "birth_date": (
+                p.birth_date.isoformat()
+                if p.birth_date else None
+            ),
             "location": p.location or "",
-            "profile_photo": p.profile_photo.url if p.profile_photo else "/static/images/default-profile.png",
+            "profile_photo": (
+                p.profile_photo.url
+                if p.profile_photo
+                else "/static/images/default-profile.png"
+            ),
             "career": p.career or "",
             "passions": p.passions or "",
             "hobbies": p.hobbies or "",
@@ -94,14 +133,13 @@ def dashboard(request):
     ]
 
     context = {
-        "profiles_json": json.dumps(profiles_json),
-        "likes_received": json.dumps(likes_received_json),
+        "profiles_json": json.dumps(profiles_json, cls=DjangoJSONEncoder),
+        "likes_received": json.dumps(likes_received_json, cls=DjangoJSONEncoder),
         "matches": matches,
         "is_paid": getattr(user, "is_paid", False),
     }
 
     return render(request, "nmdashboard/dashboard.html", context)
-
 
 
 
@@ -255,17 +293,31 @@ def unmatch_user(request):
     if request.method == "POST":
         user_id = request.POST.get("user_id")
         other_user = get_object_or_404(User, id=user_id)
-        
+
+        # Delete match
         match = Match.objects.filter(
             (Q(user1=request.user) & Q(user2=other_user)) |
             (Q(user1=other_user) & Q(user2=request.user))
         ).first()
-        
+
         if match:
             match.delete()
+
+            # 🔥 Remove ONLY the current user's like
+            Like.objects.filter(
+                from_user=request.user,
+                to_user=other_user
+            ).delete()
+
             return JsonResponse({"status": "success"})
+
         return JsonResponse({"status": "error", "message": "No match found."})
+
     return JsonResponse({"status": "error", "message": "Invalid request."})
+
+
+
+
 
 
 @login_required
