@@ -54,7 +54,10 @@
 
 
     <!-- RIGHT COLUMN (Infos du Profil) -->
+    <!-- RIGHT COLUMN (Infos du Profil) -->
     <div class="flex flex-col gap-6 order-2 lg:order-none">
+
+      <!-- Basic Profile Info -->
       <div class="bg-white rounded-2xl shadow p-4">
         <h3 class="font-bold text-center mb-4">Infos du Profil</h3>
         <div id="extra-info" class="space-y-2 text-sm">
@@ -66,7 +69,17 @@
           <p id="profile-hobbies"><b>Hobbies:</b> -</p>
         </div>
       </div>
+
+      <!-- NEW: Plus d'infos -->
+      <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-bold text-center mb-4">Plus d'infos</h3>
+        <div id="extra-more-info" class="space-y-2 text-sm">
+          <!-- JS will populate all additional user fields here -->
+        </div>
+      </div>
+
     </div>
+
 
   </div>
 </main>
@@ -171,34 +184,60 @@ function populateLikes() {
 function showProfile(index) {
   if (!card || !extra) return;
 
-  while (profiles[index] && isAlreadyMatched(profiles[index].id)) {
-    index++;
-  }
-  currentProfile = index;
-
-  if (!profiles.length || !profiles[index]) {
+  if (!profiles.length) {
+    // No profiles at all
     card.innerHTML = `<div class="p-10 text-center"><h2 class="text-2xl font-bold mb-2">No profile available for match yet</h2><p class="text-gray-500">Come back later</p></div>`;
     extra.innerHTML = `<p class="italic text-gray-400">Your possible match hobbies will be shared here</p>`;
+    const moreInfoContainer = document.getElementById("extra-more-info");
+    if (moreInfoContainer) moreInfoContainer.innerHTML = "";
     return;
   }
 
-  const p = profiles[index];
-
-  let ageText = "-";
-  if (p.birth_date) {
-    const birth = new Date(p.birth_date);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-    ageText = age;
+  // Skip already matched profiles
+  while (profiles[index] && isAlreadyMatched(profiles[index].id)) {
+    index++;
   }
+
+  if (!profiles[index]) {
+    // Reached end of array
+    index = 0; // loop back to first available profile
+    while (profiles[index] && isAlreadyMatched(profiles[index].id)) {
+      index++;
+      if (index >= profiles.length) {
+        card.innerHTML = `<div class="p-10 text-center"><h2 class="text-2xl font-bold mb-2">No profile available for match yet</h2><p class="text-gray-500">Come back later</p></div>`;
+        extra.innerHTML = `<p class="italic text-gray-400">Your possible match hobbies will be shared here</p>`;
+        const moreInfoContainer = document.getElementById("extra-more-info");
+        if (moreInfoContainer) moreInfoContainer.innerHTML = "";
+        return;
+      }
+    }
+  }
+
+  currentProfile = index;
+  const p = profiles[currentProfile];
+
+
+  // Calculate age safely
+  const ageText = p.birth_date ? (() => {
+    try {
+      const birth = new Date(p.birth_date);
+      if (isNaN(birth)) return "-";
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) age--;
+      return age;
+    } catch (e) {
+      return "-";
+    }
+  })() : "-";
+
 
   const locationText = p.location || "-";
 
   card.innerHTML = `
     <div class="relative h-96">
-      <img src="${p.profile_photo || ''}" class="w-full h-full object-cover">
+      <img src="${p.profile_photo || '/static/images/default-profile.png'}" class="w-full h-full object-cover">
     </div>
     <div class="p-6 text-center">
       <h2 class="text-2xl font-bold">${p.username}</h2>
@@ -217,6 +256,18 @@ function showProfile(index) {
     <p><b>Passions:</b> ${p.passions || "-"}</p>
     <p><b>Hobbies:</b> ${p.hobbies || "-"}</p>
   `;
+
+  const moreInfoContainer = document.getElementById("extra-more-info");
+  if (moreInfoContainer) {
+    moreInfoContainer.innerHTML = `
+      <p><b>Gender:</b> ${p.gender || "-"}</p>
+      <p><b>Interested In:</b> ${p.interested_in || "-"}</p>
+      <p><b>Education:</b> ${p.education || "-"}</p>
+      <p><b>Height:</b> ${p.height ? p.height + " cm" : "-"}</p>
+      <p><b>Favorite Music:</b> ${p.favorite_music || "-"}</p>
+      <p><b>Verified:</b> ${p.is_verified ? "✅" : "❌"}</p>
+    `;
+  }
 }
 
 /* ===============================
@@ -387,6 +438,7 @@ function rebuildMatchesData() {
   });
 }
 
+
 // UNMATCH
 document.getElementById("match-modal").querySelector(".bg-gray-200").onclick = () => {
   if (!currentMatchUser) return;
@@ -419,24 +471,43 @@ document.getElementById("match-modal").querySelector(".bg-gray-200").onclick = (
         }
       }
 
-      // 3️⃣ Re-add the user to the main card stack if not already in profiles
-      if (!profiles.some(p => p.id == unmatchedUserId)) {
-        profiles.splice(currentProfile + 1, 0, {
-          id: unmatchedUserId,
-          username: currentMatchUser.username,
-          profile_photo: currentMatchUser.profile_photo,
-          bio: currentMatchUser.bio || "",
-          career: currentMatchUser.career || "",
-          passions: currentMatchUser.passions || "",
-          hobbies: currentMatchUser.hobbies || ""
-        });
-      }
+      // 3️⃣ Ensure the unmatched user appears in the main card stack immediately
+      const existingIndex = profiles.findIndex(p => p.id == unmatchedUserId);
+      if (existingIndex === -1) {
+      // Not in stack → add to the front so it shows next
+      profiles.unshift({
+        id: currentMatchUser.id,
+        username: currentMatchUser.username || "-",
+        profile_photo: currentMatchUser.profile_photo || "/static/images/default-profile.png",
+        bio: currentMatchUser.bio || "-",
+        birth_date: currentMatchUser.birth_date || null,
+        location: currentMatchUser.location || "-",
+        career: currentMatchUser.career || "-",
+        passions: currentMatchUser.passions || "-",
+        hobbies: currentMatchUser.hobbies || "-",
+        email: currentMatchUser.email || "-",
+        gender: currentMatchUser.gender || "-",
+        interested_in: currentMatchUser.interested_in || "-",
+        education: currentMatchUser.education || "-",
+        height: currentMatchUser.height || null,
+        favorite_music: currentMatchUser.favorite_music || "-",
+        is_verified: currentMatchUser.is_verified || false,
+      });
+    } else {
+      // Already exists → move to front to show immediately
+      const [userProfile] = profiles.splice(existingIndex, 1);
+      profiles.unshift(userProfile);
+    }
+
 
       // 4️⃣ Close modal
       closeMatchModal();
 
-      // 5️⃣ Refresh main card to include the unmatched user
-      showProfile(currentProfile);
+      // 5️⃣ Show unmatched user in main card immediately
+      currentProfile = profiles.findIndex(p => p.id == unmatchedUserId);
+      if (currentProfile !== -1) {
+        showProfile(currentProfile);
+      }
 
       // 6️⃣ Refresh likes sidebar
       populateLikes();

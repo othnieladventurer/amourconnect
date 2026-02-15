@@ -115,22 +115,22 @@ def dashboard(request):
             "id": p.id,
             "username": p.username,
             "bio": p.bio or "",
-            "birth_date": (
-                p.birth_date.isoformat()
-                if p.birth_date else None
-            ),
+            "birth_date": (p.birth_date.isoformat() if p.birth_date else None),
+            "gender": p.gender or "",
+            "interested_in": p.interested_in or "",
             "location": p.location or "",
-            "profile_photo": (
-                p.profile_photo.url
-                if p.profile_photo
-                else "/static/images/default-profile.png"
-            ),
+            "profile_photo": p.profile_photo.url if p.profile_photo else "/static/images/default-profile.png",
             "career": p.career or "",
+            "education": p.education or "",
             "passions": p.passions or "",
             "hobbies": p.hobbies or "",
+            "height": p.height or None,
+            "favorite_music": p.favorite_music or "",
+            "is_verified": p.is_verified,
         }
         for p in profiles
     ]
+
 
     context = {
         "profiles_json": json.dumps(profiles_json, cls=DjangoJSONEncoder),
@@ -140,7 +140,6 @@ def dashboard(request):
     }
 
     return render(request, "nmdashboard/dashboard.html", context)
-
 
 
 
@@ -163,38 +162,37 @@ def like_or_pass(request):
     except User.DoesNotExist:
         return JsonResponse({"error": "User not found"}, status=404)
 
-    # PASS = just ignore
+    # ----------------
+    # PASS = TEMPORARY, DO NOT SAVE
+    # ----------------
     if action == "pass":
-        Like.objects.get_or_create(
-            from_user=from_user,
-            to_user=to_user,
-        )
-        return JsonResponse({"status": "passed"})
+        return JsonResponse({"status": "passed", "is_match": False})
 
+    # ----------------
     # LIKE
+    # ----------------
     like, created = Like.objects.get_or_create(
         from_user=from_user,
         to_user=to_user,
     )
 
-    # Check if the other user already liked me
+    # Check for reciprocal like
     reciprocal_like = Like.objects.filter(
         from_user=to_user,
         to_user=from_user
     ).first()
 
     if reciprocal_like:
-        # MATCH 🔥
+        # MATCH
         like.is_matched = True
         reciprocal_like.is_matched = True
         like.save()
         reciprocal_like.save()
 
-        # Ensure consistent order to avoid duplicate matches
+        # Create match entry
         user1, user2 = sorted([from_user, to_user], key=lambda u: u.id)
         match, _ = Match.objects.get_or_create(user1=user1, user2=user2)
 
-        # ✅ Minimal change: return matched user info
         matched_user_info = {
             "id": to_user.id,
             "username": to_user.username,
@@ -208,7 +206,6 @@ def like_or_pass(request):
         })
 
     return JsonResponse({"status": "liked", "is_match": False})
-
 
 
 
