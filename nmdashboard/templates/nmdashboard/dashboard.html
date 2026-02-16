@@ -107,41 +107,56 @@
 
 <!-- MATCH MODAL -->
 <!-- MATCH MODAL -->
-<div id="match-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
-  <div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center relative">
-    <button onclick="closeMatchModal()" class="absolute top-3 right-4 text-2xl">&times;</button>
-    <h2 class="text-2xl font-bold text-secondary mb-4">✨ C’est un match !</h2>
+<div id="match-modal"
+     class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+
+  <div class="bg-white rounded-2xl w-full max-w-sm max-h-[90vh] overflow-y-auto p-6 text-center relative">
+
+    <!-- Close -->
+    <button onclick="closeMatchModal()"
+            class="absolute top-3 right-4 text-2xl">
+      &times;
+    </button>
+
+    <h2 class="text-2xl font-bold text-secondary mb-4">
+      ✨ C’est un match !
+    </h2>
+
     <img id="match-img"
-     class="w-28 h-28 mx-auto rounded-full mb-4 object-cover object-center"
-     src="">
+         class="w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-full mb-4 object-cover object-center"
+         src="">
+
     <p id="match-name" class="font-bold text-lg mb-6"></p>
+
     <div class="flex flex-col gap-3">
-      
+
       <!-- Voir Profil -->
       <a id="match-view-link"
-         class="bg-primary text-white py-3 rounded-full transition-colors duration-200 hover:bg-purple-700"
-         href="#">
+         class="bg-primary text-white py-3 rounded-full transition-colors duration-200 hover:bg-purple-700">
          👤 Voir le profil
       </a>
 
-      <!-- ✅ UPDATED: Envoyer message as real link -->
+      <!-- Message -->
       <a id="match-message-link"
-         class="bg-secondary text-white py-3 rounded-full transition-colors duration-200 hover:bg-pink-700"
-         href="#">
+         class="bg-secondary text-white py-3 rounded-full transition-colors duration-200 hover:bg-pink-700">
          💬 Envoyer un message
       </a>
 
+      <!-- Unmatch -->
       <button class="bg-gray-200 py-3 rounded-full transition-colors duration-200 hover:bg-gray-400">
         ❌ Unmatch
       </button>
 
+      <!-- Block -->
       <button class="bg-red-500 text-white py-3 rounded-full transition-colors duration-200 hover:bg-red-700">
         🚫 Bloquer
       </button>
 
     </div>
+
   </div>
 </div>
+
 
 
 <script>

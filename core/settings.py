@@ -31,7 +31,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-p6%y6_zpiu13eoy^o#xq0s1y4+tzg-%4y6%k=3o*&80lzlm4pl'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+ENVIRONMENT = config("ENVIRONMENT", default="production").lower()
+DEBUG = True if ENVIRONMENT == "development" else False
+
 
 ALLOWED_HOSTS = ['127.0.0.1',    'noumatch.up.railway.app']
 
@@ -173,3 +175,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 print(ENVIRONMENT)
+print(DEBUG)
+
+
+

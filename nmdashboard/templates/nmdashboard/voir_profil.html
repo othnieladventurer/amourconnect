@@ -6,19 +6,32 @@
   <div class="max-w-5xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row">
 
     <!-- PROFILE PHOTO -->
-    <div class="lg:w-1/2 relative flex-shrink-0">
+    <div class="lg:w-1/2 relative flex-shrink-0 h-[70vh] sm:h-[75vh] lg:h-auto">
+
       {% if profile_suser.profile_photo %}
-        <img src="{{ profile_suser.profile_photo.url }}" class="w-full h-full object-cover">
+        <img src="{{ profile_suser.profile_photo.url }}" 
+            class="w-full h-full object-cover">
       {% else %}
-        <img src="/static/images/default-profile.png" class="w-full h-full object-cover">
+        <img src="/static/images/default-profile.png" 
+            class="w-full h-full object-cover">
       {% endif %}
-      <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 via-black/30 to-transparent p-6">
-        <h1 class="text-3xl font-bold text-white">{{ profile_suser.username }}</h1>
+
+      <div class="absolute bottom-0 left-0 w-full 
+                  bg-gradient-to-t from-black/70 via-black/30 to-transparent p-6">
+        <h1 class="text-3xl font-bold text-white">
+          {{ profile_suser.username }}
+        </h1>
+
         {% if profile_suser.bio %}
-          <p class="text-white mt-1 text-sm">{{ profile_suser.bio }}</p>
+          <p class="text-white mt-1 text-sm">
+            {{ profile_suser.bio }}
+          </p>
         {% endif %}
       </div>
+
     </div>
+
+
 
     <!-- INFO CARDS -->
     <div class="lg:w-1/2 p-6 space-y-4">
@@ -70,42 +83,50 @@
         </div>
       </div>
 
-      <!-- ACTION BUTTONS -->
-    <div class="grid grid-cols-2 gap-5 mt-8">
+    <!-- ACTION BUTTONS -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-8">
 
-        <a href=""
-        class="flex items-center justify-center gap-2 h-14 
+        <!-- SEND MESSAGE -->
+        <a href="{% url 'nmdashboard:chat' profile_suser.id %}"
+          class="flex items-center justify-center gap-2 h-14 
                 bg-pink-600 text-white rounded-2xl font-semibold 
                 hover:bg-pink-700 hover:shadow-lg 
-                transition-all duration-200 shadow-md">
+                transition-all duration-200 shadow-md w-full">
             💬 <span>Envoyer un message</span>
         </a>
 
-        <button
-            class="flex items-center justify-center gap-2 h-14 
-                bg-gray-200 text-gray-800 rounded-2xl font-semibold 
-                hover:bg-gray-300 hover:shadow-lg 
-                transition-all duration-200 shadow-md">
-            ❌ <span>Se désapparier</span>
-        </button>
+        <!-- UNMATCH -->
+        <form method="POST" 
+              action="{% url 'nmdashboard:unmatch_user' %}">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" value="{{ profile_suser.id }}">
+            <button type="submit"
+                class="flex items-center justify-center gap-2 h-14 
+                      bg-gray-200 text-gray-800 rounded-2xl font-semibold 
+                      hover:bg-gray-300 hover:shadow-lg 
+                      transition-all duration-200 shadow-md w-full">
+                ❌ <span>Unmatch</span>
+            </button>
+        </form>
 
-        <button
-            class="flex items-center justify-center gap-2 h-14 
-                bg-red-500 text-white rounded-2xl font-semibold 
-                hover:bg-red-600 hover:shadow-lg 
-                transition-all duration-200 shadow-md">
-            💔 <span>Unlike</span>
-        </button>
-
-        <button
-            class="flex items-center justify-center gap-2 h-14 
-                bg-black text-white rounded-2xl font-semibold 
-                hover:bg-gray-900 hover:shadow-lg 
-                transition-all duration-200 shadow-md">
-            🚫 <span>Bloquer</span>
-        </button>
+        <!-- BLOCK (Full width on desktop) -->
+        <form method="POST" 
+              action="{% url 'nmdashboard:block_user' %}" 
+              class="lg:col-span-2">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" value="{{ profile_suser.id }}">
+            <button type="submit"
+                class="flex items-center justify-center gap-2 h-14 
+                      bg-black text-white rounded-2xl font-semibold 
+                      hover:bg-gray-900 hover:shadow-lg 
+                      transition-all duration-200 shadow-md w-full">
+                🚫 <span>Bloquer</span>
+            </button>
+        </form>
 
     </div>
+
+
 
 
       <!-- OPTIONAL: FUN TAGS -->
